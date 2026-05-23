@@ -2,10 +2,10 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
     <title>Казино Six-Seven 🎰</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; touch-action: none; }
         body { background-color: #000; color: #fff; font-family: 'Arial', sans-serif; overflow: hidden; }
         
         #game-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -14,7 +14,7 @@
         .header { text-align: center; margin-bottom: 20px; }
         .title { font-size: 46px; color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5); font-weight: bold; }
         
-        .balance-box { position: absolute; top: 25px; left: 25px; background: #28282d; border: 3px solid #ffd700; border-radius: 8px; padding: 10px 25px; font-size: 30px; font-weight: bold; color: #fff; }
+        .balance-box { position: absolute; top: 25px; left: 25px; background: #28282d; border: 3px solid #ffd700; border-radius: 8px; padding: 10px 25px; font-size: 30px; font-weight: bold; color: #fff; z-index: 2; }
         
         .slot-machine { display: grid; grid-template-columns: repeat(3, 110px); grid-gap: 15px; background: #111; padding: 20px; border-radius: 15px; border: 4px solid #fff; margin-bottom: 25px; }
         .slot-cell { width: 110px; height: 110px; background: #222; border: 3px solid #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
@@ -26,12 +26,12 @@
         .btn-spin { border-color: #4bff4b; color: #4bff4b; width: 300px; }
         .btn-spin.blocked { border-color: #ff4b4b; color: #ff4b4b; cursor: not-allowed; }
         
-        .side-buttons { position: absolute; bottom: 25px; right: 25px; display: flex; flex-direction: column; gap: 10px; }
+        .side-buttons { position: absolute; bottom: 25px; right: 25px; display: flex; flex-direction: column; gap: 10px; z-index: 2; }
         .btn-job { border-color: #4bff4b; color: #4bff4b; }
         .btn-shop { border-color: #ffd700; color: #ffd700; }
         
         /* ЕФЕКТИ */
-        .effect-zone { position: absolute; bottom: 25px; left: 25px; width: 200px; height: 80px; background: #28282d; border: 2px solid #555; border-radius: 5px; padding: 10px; cursor: pointer; }
+        .effect-zone { position: absolute; bottom: 25px; left: 25px; width: 200px; height: 80px; background: #28282d; border: 2px solid #555; border-radius: 5px; padding: 10px; cursor: pointer; z-index: 2; }
         .effect-zone.active { border-color: #9370db; }
         .effect-title { font-size: 16px; font-weight: bold; }
         .effect-desc { font-size: 12px; color: #888; margin-top: 5px; }
@@ -63,7 +63,7 @@
         .boss-portrait img { width: 100%; height: 100%; object-fit: contain; }
         .boss-box { width: 300px; height: 300px; border: 4px solid #fff; position: relative; background: #000; overflow: hidden; }
         
-        .player-heart { position: absolute; transform: translate(-50%, -50%); font-size: 30px; color: #ff0000; line-height: 1; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
+        .player-heart { position: absolute; transform: translate(-50%, -50%); font-size: 30px; color: #ff0000; line-height: 1; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; z-index: 1; }
         .boss-bullet { width: 48px; height: 48px; position: absolute; transform: translate(-50%, -50%); }
         .boss-bullet img { width: 100%; height: 100%; object-fit: contain; }
         .boss-bomb { width: 72px; height: 72px; position: absolute; transform: translate(-50%, -50%); }
@@ -72,6 +72,15 @@
         .boss-bomb.blinking { animation: blink 0.2s infinite; }
         .explosion-ring { position: absolute; border: 3px solid #ff4b4b; background: rgba(255,75,75,0.2); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
         .boss-ui { display: flex; width: 300px; justify-content: space-between; margin-top: 15px; font-size: 20px; font-weight: bold; }
+
+        /* ВІРТУАЛЬНИЙ ДЖОЙСТИК ДЛЯ БОЮ */
+        #boss-controls { position: absolute; bottom: 30px; left: 30px; display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 10px; z-index: 10; display: None; }
+        .control-btn { width: 60px; height: 60px; background: rgba(255,255,255,0.1); border: 3px solid #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #fff; cursor: pointer; transition: 0.1s; }
+        .control-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
+        #btn-up { grid-column: 2; grid-row: 1; }
+        #btn-left { grid-column: 1; grid-row: 2; }
+        #btn-down { grid-column: 2; grid-row: 2; }
+        #btn-right { grid-column: 3; grid-row: 2; }
         
         /* СКРІМЕР */
         #screamer-screen { display: none; position: absolute; inset: 0; background: #ff0000; z-index: 10; flex-direction: column; align-items: center; justify-content: center; }
@@ -154,6 +163,12 @@
             <div id="boss-timer" style="color: #ffd700;">Час: 30 сек</div>
             <div id="boss-hp" style="color: #4bff4b;">HP: 100 / 100</div>
         </div>
+        <div id="boss-controls">
+            <div class="control-btn" id="btn-up">↑</div>
+            <div class="control-btn" id="btn-left">←</div>
+            <div class="control-btn" id="btn-down">↓</div>
+            <div class="control-btn" id="btn-right">→</div>
+        </div>
     </div>
 
     <div id="screamer-screen">
@@ -184,7 +199,7 @@
         };
 
         const base_symbol_weights = {
-            "faah": 20, "raaah": 16, "Luigi": 9, "talking ben": 12, "HAHAHA": 8, "1488": 7,
+            "faah": 20, "raaah": 16, "Luigi": 9, "talking ben": 12, "HAHAHA": 7, "1488": 8,
             "dog": 6, "amogus": 5, "tung tung tung sahur": 4, "doge": 3, "gigachad": 2, "42": 1,
             "rickroll": 0.75, "six-seven": 0.5
         };
@@ -371,7 +386,7 @@
             let multi = 1 + (shop_items["authority"]["level"] * 0.25);
             let final_reward = Math.floor(total_win * multi);
 
-            // 1. КІТ ХАХАХА (СКАМЕР)
+            // 1. КІТ ХАХАХА (СКАМЕР) -> ЗАХИСТ ТУТ!
             if (triggers["HAHAHA"]) {
                 if (shop_items["light_discord"]["count"] > 0) {
                     shop_items["light_discord"]["count"]--;
@@ -602,6 +617,7 @@
         let bombsList = [];
         let explosionsList = [];
         let keysPressed = {};
+        let touchKeysPressed = {}; // Стан віртуальних кнопок
 
         function startBossFight() {
             game_status = "БОСФАЙТ! Битва розпочалась!";
@@ -609,6 +625,9 @@
             playMusic('fight.mp3');
             
             document.getElementById("boss-screen").style.display = "flex";
+            // Показати віртуальні кнопки на телефоні
+            document.getElementById("boss-controls").style.display = "grid";
+
             hp = 100;
             bossTimeRemaining = 30;
             bulletsList = []; bombsList = []; explosionsList = [];
@@ -654,11 +673,19 @@
         }
 
         function bossUpdate() {
+            // Рух з клавіатури
             if (keysPressed["ArrowLeft"] || keysPressed["a"]) heart.x -= heart.speed;
             if (keysPressed["ArrowRight"] || keysPressed["d"]) heart.x += heart.speed;
             if (keysPressed["ArrowUp"] || keysPressed["w"]) heart.y -= heart.speed;
             if (keysPressed["ArrowDown"] || keysPressed["s"]) heart.y += heart.speed;
 
+            // Рух з віртуальних кнопок (для телефонів)
+            if (touchKeysPressed["left"]) heart.x -= heart.speed;
+            if (touchKeysPressed["right"]) heart.x += heart.speed;
+            if (touchKeysPressed["up"]) heart.y -= heart.speed;
+            if (touchKeysPressed["down"]) heart.y += heart.speed;
+
+            // Межі коробки
             if (heart.x < 10) heart.x = 10; if (heart.x > 290) heart.x = 290;
             if (heart.y < 10) heart.y = 10; if (heart.y > 290) heart.y = 290;
 
@@ -714,11 +741,10 @@
                 }
             }
 
-            // ТУТ БУВ БАГ З УРОНОМ ВІД ВИБУХУ: прибрано обмеження elapsed < 200
             for(let i = explosionsList.length - 1; i >= 0; i--) {
                 let exp = explosionsList[i];
                 let elapsed = now - exp.explodeTime;
-                let currentRadius = (elapsed / 500) * 120; // Максимальний радіус хлі прибл. 120px
+                let currentRadius = (elapsed / 500) * 120;
                 
                 exp.el.style.width = (currentRadius * 2) + "px";
                 exp.el.style.height = (currentRadius * 2) + "px";
@@ -726,7 +752,7 @@
                 let dist = Math.hypot(exp.x - heart.x, exp.y - heart.y);
                 if (dist < currentRadius && now > invincibleTimer) {
                     hp -= 10;
-                    invincibleTimer = now + 500; // Пів секунди невразливості
+                    invincibleTimer = now + 500;
                     playSound('boss_hit.wav');
                 }
 
@@ -756,6 +782,9 @@
             explosionsList.forEach(e => e.el.remove());
 
             document.getElementById("boss-screen").style.display = "none";
+            // Сховати віртуальні кнопки
+            document.getElementById("boss-controls").style.display = "none";
+            touchKeysPressed = {}; // Скинути стан кнопок
 
             if (isWin) {
                 let multiplier = 1.0 + (shop_items["authority"]["level"] * 0.25);
@@ -769,6 +798,39 @@
             }
             updateUI();
         }
+
+        // Обробка віртуальних кнопок
+        function setupVirtualControls() {
+            const btns = {
+                "up": document.getElementById("btn-up"),
+                "down": document.getElementById("btn-down"),
+                "left": document.getElementById("btn-left"),
+                "right": document.getElementById("btn-right")
+            };
+
+            // Функція для старту руху
+            const startMove = (dir) => {
+                if (document.getElementById("boss-screen").style.display === "flex") {
+                    touchKeysPressed[dir] = true;
+                }
+            };
+            // Функція для зупинки руху
+            const stopMove = (dir) => {
+                touchKeysPressed[dir] = false;
+            };
+
+            // Прив'язка подій
+            for (let dir in btns) {
+                // Подвійна прив'язка mousedown/mouseup для ПК і touchstart/touchend для телефонів
+                btns[dir].addEventListener("touchstart", (e) => { e.preventDefault(); startMove(dir); });
+                btns[dir].addEventListener("touchend", (e) => { e.preventDefault(); stopMove(dir); });
+                btns[dir].addEventListener("mousedown", (e) => { e.preventDefault(); startMove(dir); });
+                btns[dir].addEventListener("mouseup", (e) => { e.preventDefault(); stopMove(dir); });
+                btns[dir].addEventListener("mouseleave", (e) => { e.preventDefault(); stopMove(dir); }); // На випадок якщо мишка з'їхала
+            }
+        }
+
+        setupVirtualControls(); // Запустити налаштування кнопок
 
         window.addEventListener("keydown", (e) => {
             keysPressed[e.key] = true;
