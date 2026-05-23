@@ -371,7 +371,7 @@
             let multi = 1 + (shop_items["authority"]["level"] * 0.25);
             let final_reward = Math.floor(total_win * multi);
 
-            // 1. КІТ ХАХАХА (СКАМЕР) -> ТЕПЕР ЗАХИСТ ТУТ!
+            // 1. КІТ ХАХАХА (СКАМЕР)
             if (triggers["HAHAHA"]) {
                 if (shop_items["light_discord"]["count"] > 0) {
                     shop_items["light_discord"]["count"]--;
@@ -409,7 +409,7 @@
                 return;
             } 
             
-            // 4. ПЕС БЕН (talking ben) -> БЕЗ КОТЯЧОГО КОНТЕНТУ!
+            // 4. ПЕС БЕН (talking ben)
             if (triggers["talking ben"]) {
                 game_status = "Бен думає над твоєю долею...";
                 updateUI();
@@ -440,7 +440,7 @@
                 return;
             }
 
-            // ЗВИЧАЙНИЙ ВИГРАШ (ЗІ ЗВУКАМИ МЕМІВ)
+            // ЗВИЧАЙНИЙ ВИГРАШ
             if (winLinesCount > 0) {
                 balance += final_reward;
                 game_status = `Виграш! Ліній: ${winLinesCount}. Нараховано +${final_reward}$!`;
@@ -714,18 +714,19 @@
                 }
             }
 
+            // ТУТ БУВ БАГ З УРОНОМ ВІД ВИБУХУ: прибрано обмеження elapsed < 200
             for(let i = explosionsList.length - 1; i >= 0; i--) {
                 let exp = explosionsList[i];
                 let elapsed = now - exp.explodeTime;
-                let currentRadius = (elapsed / 500) * 120;
+                let currentRadius = (elapsed / 500) * 120; // Максимальний радіус хлі прибл. 120px
                 
                 exp.el.style.width = (currentRadius * 2) + "px";
                 exp.el.style.height = (currentRadius * 2) + "px";
 
                 let dist = Math.hypot(exp.x - heart.x, exp.y - heart.y);
-                if (dist < currentRadius && now > invincibleTimer && elapsed < 200) {
+                if (dist < currentRadius && now > invincibleTimer) {
                     hp -= 10;
-                    invincibleTimer = now + 500;
+                    invincibleTimer = now + 500; // Пів секунди невразливості
                     playSound('boss_hit.wav');
                 }
 
