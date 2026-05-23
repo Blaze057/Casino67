@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Казино Six-Seven 🎰</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { background-color: #000; color: #fff; font-family: 'Arial', sans-serif; overflow: hidden; }
+        
+        #game-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        
+        /* ГОЛОВНИЙ ЕКРАН */
+        .header { text-align: center; margin-bottom: 20px; }
+        .title { font-size: 46px; color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5); font-weight: bold; }
+        
+        .balance-box { position: absolute; top: 25px; left: 25px; background: #28282d; border: 3px solid #ffd700; border-radius: 8px; padding: 10px 25px; font-size: 30px; font-weight: bold; color: #fff; }
+        
+        .slot-machine { display: grid; grid-template-columns: repeat(3, 110px); grid-gap: 15px; background: #111; padding: 20px; border-radius: 15px; border: 4px solid #fff; margin-bottom: 25px; }
+        .slot-cell { width: 110px; height: 110px; background: #222; border: 3px solid #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .slot-cell img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .status-text { font-size: 20px; color: #fff; text-align: center; min-height: 30px; margin-bottom: 20px; max-width: 600px; }
+        
+        .btn { padding: 12px 40px; font-size: 20px; font-weight: bold; border-radius: 12px; cursor: pointer; border: 3px solid transparent; transition: 0.2s; background: #28282d; color: #fff; text-align: center; }
+        .btn-spin { border-color: #4bff4b; color: #4bff4b; width: 300px; }
+        .btn-spin.blocked { border-color: #ff4b4b; color: #ff4b4b; cursor: not-allowed; }
+        
+        .side-buttons { position: absolute; bottom: 25px; right: 25px; display: flex; flex-direction: column; gap: 10px; }
+        .btn-job { border-color: #4bff4b; color: #4bff4b; }
+        .btn-shop { border-color: #ffd700; color: #ffd700; }
+        
+        /* ЕФЕКТИ */
+        .effect-zone { position: absolute; bottom: 25px; left: 25px; width: 200px; height: 80px; background: #28282d; border: 2px solid #555; border-radius: 5px; padding: 10px; cursor: pointer; }
+        .effect-zone.active { border-color: #9370db; }
+        .effect-title { font-size: 16px; font-weight: bold; }
+        .effect-desc { font-size: 12px; color: #888; margin-top: 5px; }
+        
+        .tooltip { display: none; position: absolute; bottom: 115px; left: 25px; width: 330px; background: #141419; border: 1px solid #ff4b4b; border-radius: 6px; padding: 10px; font-size: 12px; z-index: 10; line-height: 1.5; }
+        .effect-zone:hover .tooltip { display: block; }
+        
+        /* ЕКРАН РОБОТИ */
+        #job-screen { display: none; position: absolute; inset: 0; background: #192319; flex-direction: column; align-items: center; justify-content: center; z-index: 5; }
+        .work-zone { width: 700px; height: 360px; background: #283228; border: 2px solid #80805a; border-radius: 10px; position: relative; overflow: hidden; cursor: crosshair; }
+        .poop { position: absolute; width: 40px; height: 40px; cursor: pointer; transform: translate(-50%, -50%); transition: transform 0.1s; }
+        .poop img { width: 100%; height: 100%; object-fit: contain; }
+        .poop:hover { transform: translate(-50%, -50%) scale(1.15); }
+        
+        /* ЕКРАН МАГАЗИНУ */
+        #shop-screen { display: none; position: absolute; inset: 0; background: #000; flex-direction: column; align-items: center; justify-content: center; z-index: 5; }
+        .shop-container { display: flex; gap: 40px; align-items: flex-start; max-width: 900px; width: 100%; padding: 20px; }
+        .shop-items-list { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .shop-item-card { background: #28282d; border: 1px solid #80805a; border-radius: 8px; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .shop-item-card:hover { background: #3c3c46; }
+        .cat-seller-zone { width: 270px; display: flex; flex-direction: column; align-items: center; }
+        .cat-image-box { width: 180px; height: 180px; margin-bottom: 15px; animation: float 3s ease-in-out infinite; }
+        .cat-image-box img { width: 100%; height: 100%; object-fit: contain; }
+        .cat-dialog { background: #fff; color: #000; border-radius: 10px; padding: 12px; width: 100%; font-size: 13px; position: relative; min-height: 80px; font-weight: bold; box-shadow: 0 4px 10px rgba(255,255,255,0.2); }
+        
+        /* БОСФАЙТ */
+        #boss-screen { display: none; position: absolute; inset: 0; background: #000; flex-direction: column; align-items: center; justify-content: center; z-index: 6; }
+        .boss-portrait { width: 240px; height: 240px; margin-bottom: 15px; }
+        .boss-portrait img { width: 100%; height: 100%; object-fit: contain; }
+        .boss-box { width: 300px; height: 300px; border: 4px solid #fff; position: relative; background: #000; overflow: hidden; }
+        
+        .player-heart { position: absolute; transform: translate(-50%, -50%); font-size: 30px; color: #ff0000; line-height: 1; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
+        .boss-bullet { width: 48px; height: 48px; position: absolute; transform: translate(-50%, -50%); }
+        .boss-bullet img { width: 100%; height: 100%; object-fit: contain; }
+        .boss-bomb { width: 72px; height: 72px; position: absolute; transform: translate(-50%, -50%); }
+        .boss-bomb img { width: 100%; height: 100%; object-fit: contain; }
+        
+        .boss-bomb.blinking { animation: blink 0.2s infinite; }
+        .explosion-ring { position: absolute; border: 3px solid #ff4b4b; background: rgba(255,75,75,0.2); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+        .boss-ui { display: flex; width: 300px; justify-content: space-between; margin-top: 15px; font-size: 20px; font-weight: bold; }
+        
+        /* СКРІМЕР */
+        #screamer-screen { display: none; position: absolute; inset: 0; background: #ff0000; z-index: 10; flex-direction: column; align-items: center; justify-content: center; }
+        .screamer-box { width: 80vw; height: 70vh; animation: shake 0.1s infinite; }
+        .screamer-box img { width: 100%; height: 100%; object-fit: contain; }
+        .screamer-text { font-size: 50px; color: #ffd700; font-weight: bold; text-align: center; margin-top: 20px; }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes shake { 0%, 100% { transform: translate(0, 0) scale(1); } 20% { transform: translate(-10px, 5px) scale(1.1); } 40% { transform: translate(10px, -5px) scale(1.05); } 60% { transform: translate(-5px, -10px) scale(1.15); } 80% { transform: translate(5px, 10px) scale(0.95); } }
+        @keyframes blink { 0%, 100% { filter: invert(0); } 50% { filter: invert(1) sepia(1) saturate(100) hue-rotate(0deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div class="balance-box" id="balance-display">200$</div>
+
+        <div class="header">
+            <div class="title">CASINO SIX-SEVEN</div>
+        </div>
+
+        <div class="slot-machine" id="slots">
+            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+        </div>
+
+        <div class="status-text" id="status-label">Натисніть SPACE або Кликніть, щоб крутити!</div>
+        <button class="btn btn-spin" id="spin-btn" onclick="spinReels()">Крутити! | 10$</button>
+
+        <div class="effect-zone" id="effect-box">
+            <div id="effect-content">
+                <div class="effect-title" style="color: #80805a;">Немає активних ефектів</div>
+            </div>
+            <div class="tooltip" id="effect-tooltip"></div>
+        </div>
+
+        <div class="side-buttons">
+            <button class="btn btn-job" onclick="openJob()">Робота 🧹</button>
+            <button class="btn btn-shop" onclick="openShop()">Магазин Кота 🛒</button>
+        </div>
+    </div>
+
+    <div id="job-screen">
+        <h1 style="color: #4bff4b; font-size: 46px; margin-bottom: 10px;">СИМУЛЯТОР ЧИСТИЛЬНИКА</h1>
+        <div class="status-text" id="job-stats" style="font-size: 30px;">Баланс: 200$ | Прибрано: 0</div>
+        <div class="work-zone" id="work-zone"></div>
+        <div style="width: 700px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+            <div id="job-progress" style="color: #ffd700; font-size: 20px;">Прогрес до зарплати: 0/10 (Дають 5$)</div>
+            <button class="btn" style="border-color: #ff4b4b; color: #ff4b4b;" onclick="closeJob()">Повернутись до Казино</button>
+        </div>
+    </div>
+
+    <div id="shop-screen">
+        <h1 style="color: #ffd700; font-size: 46px; margin-bottom: 10px;">МАГАЗИН КОТА</h1>
+        <div class="status-text" id="shop-balance" style="font-size: 30px; color: #4bff4b;">Ваш баланс: 200$</div>
+        
+        <div class="shop-container">
+            <div class="shop-items-list" id="shop-items-container"></div>
+            <div class="cat-seller-zone">
+                <div class="cat-image-box"><img src="images/cat.png"></div>
+                <div class="cat-dialog" id="cat-speech">Вітаю у своєму магазинчику!</div>
+            </div>
+        </div>
+        <button class="btn" style="border-color: #ff4b4b; color: #ff4b4b; margin-top: 20px; width: 240px;" onclick="closeShop()">Назад у Казино</button>
+    </div>
+
+    <div id="boss-screen">
+        <div class="boss-portrait"><img src="images/theboss.jpg"></div>
+        <div class="boss-box" id="boss-area">
+            <div class="player-heart" id="heart">❤</div>
+        </div>
+        <div class="boss-ui">
+            <div id="boss-timer" style="color: #ffd700;">Час: 30 сек</div>
+            <div id="boss-hp" style="color: #4bff4b;">HP: 100 / 100</div>
+        </div>
+    </div>
+
+    <div id="screamer-screen">
+        <div class="screamer-box"><img src="images/Luigi.jpg"></div>
+        <div class="screamer-text" id="screamer-banner">!!!LUIGI JUMPSCARE!!!</div>
+    </div>
+
+    <script>
+        let balance = 200;
+        const current_bet = 10;
+        let game_status = "Натисніть SPACE або Кликніть, щоб крутити!";
+        let is_shop_open = false;
+        let is_job_open = false;
+        let insufficient_funds_trigger = false;
+
+        let cleaned_poops_count = 0;
+        let luigi_paralysis_turns = 0;
+
+        const authority_levels = [100, 250, 500, 1200, 2500, 5300];
+        const talisman_levels = [77, 277, 577, 1077, 1777];
+
+        const shop_items = {
+            "authority": { name: "Авторитет", cost: 100, level: 0, max_level: 6, desc: "Збільшує множник прибутку (+0.25x за рівень).", cat_joke: "Якби ж в реальності можна було його так просто купити...", multi: true },
+            "apple_juice": { name: "Яблучний Сік", cost: 50, count: 0, desc: "Витрачається на Бена. Шанс 'Так' стає 60%, а 'Ні' 40%.", cat_joke: "Ми всі знаємо що це насправді не дитячий сік", multi: false },
+            "talisman": { name: "Бабусин Талісман", cost: 77, level: 0, max_level: 5, desc: "Збільшує шанс точного виграшу та покращує дроп рідкісних символів.", cat_joke: "Я вкрав його у якоїсь бабці, може тобі знадобиться", multi: true },
+            "light_discord": { name: "Світла тема діскорда", cost: 99, count: 0, desc: "Контрить атаку Кота ХАХАХА (-1 шт), але крик Луїджі забирає вже 5$.", cat_joke: "О боже мені самому страшно від неї...", multi: false },
+            "pasta": { name: "паста без кетчупу", cost: 25, count: 0, desc: "Моментально заспокоїть Луїджі і заблокує скрімер (-1 шт).", cat_joke: "Мрія кожного італійця!", multi: false }
+        };
+
+        const base_symbol_weights = {
+            "faah": 20, "raaah": 16, "Luigi": 9, "talking ben": 12, "HAHAHA": 8, "1488": 7,
+            "dog": 6, "amogus": 5, "tung tung tung sahur": 4, "doge": 3, "gigachad": 2, "42": 1,
+            "rickroll": 0.75, "six-seven": 0.5
+        };
+
+        const symbols = Object.keys(base_symbol_weights);
+        let currentGrid = Array(9).fill("six-seven");
+
+        let currentBgMusic = null;
+
+        function playSound(file) {
+            let sfx = new Audio(`sounds/${file}`);
+            sfx.volume = 0.5;
+            sfx.play().catch(e => console.log("Audio blocked"));
+        }
+
+        function playMusic(file) {
+            if (currentBgMusic) { currentBgMusic.pause(); currentBgMusic = null; }
+            currentBgMusic = new Audio(`sounds/${file}`);
+            currentBgMusic.loop = true;
+            currentBgMusic.volume = 0.4;
+            currentBgMusic.play().catch(e => console.log("Music blocked"));
+        }
+
+        function stopMusic() {
+            if (currentBgMusic) { currentBgMusic.pause(); currentBgMusic = null; }
+        }
+
+        function updateUI() {
+            document.getElementById("balance-display").innerText = balance + "$";
+            document.getElementById("job-stats").innerText = `Баланс: ${balance}$ | Прибрано: ${cleaned_poops_count}`;
+            document.getElementById("shop-balance").innerText = `Ваш баланс: ${balance}$`;
+            document.getElementById("status-label").innerText = game_status;
+            
+            const isBlocked = ["Крутимо", "думає", "SCREAM", "БОСФАЙТ", "Захист", "заспокоївся"].some(x => game_status.includes(x));
+            const spinBtn = document.getElementById("spin-btn");
+            if (isBlocked) {
+                spinBtn.innerText = "...";
+                spinBtn.classList.add("blocked");
+            } else {
+                spinBtn.innerText = `Крутити! | ${current_bet}$`;
+                spinBtn.classList.remove("blocked");
+            }
+            drawEffects();
+        }
+
+        function drawEffects() {
+            const box = document.getElementById("effect-box");
+            const content = document.getElementById("effect-content");
+            const tooltip = document.getElementById("effect-tooltip");
+            
+            if (luigi_paralysis_turns > 0) {
+                box.classList.add("active");
+                content.innerHTML = `<div class="effect-title" style="color: #ff4b4b;">Параліч: ${luigi_paralysis_turns}х</div><div class="effect-desc">-10% Удача</div>`;
+                tooltip.innerHTML = `<b>Ефект 'Параліч Луїджі':</b><br>Шанс виграти зменшено на 10% на ${luigi_paralysis_turns} х.<br>З темою діскорда скрімер знімає 5$.`;
+            } else {
+                box.classList.remove("active");
+                content.innerHTML = `<div class="effect-title" style="color: #808090;">Немає активних ефектів</div>`;
+                tooltip.innerHTML = "";
+            }
+        }
+
+        function getWeights() {
+            let lvl = shop_items["talisman"]["level"];
+            let w = { ...base_symbol_weights };
+            if (lvl >= 1) { w["faah"] = Math.max(2, w["faah"] - 5); w["dog"] += 2; w["amogus"] += 1; }
+            if (lvl >= 2) { w["raaah"] = Math.max(2, w["raaah"] - 5); w["doge"] += 3; w["tung tung tung sahur"] += 1; }
+            if (lvl >= 3) { w["Luigi"] = Math.max(2, w["Luigi"] - 4); w["gigachad"] += 4; w["42"] += 2; }
+            if (lvl >= 4) { w["talking ben"] = Math.max(2, w["talking ben"] - 4); w["rickroll"] += 4; }
+            if (lvl >= 5) { w["HAHAHA"] = Math.max(1, w["HAHAHA"] - 5); w["six-seven"] += 5; }
+            return w;
+        }
+
+        function getRandomSymbol(weights) {
+            let total = 0;
+            for (let k in weights) total += weights[k];
+            let r = Math.random() * total;
+            let sum = 0;
+            for (let k in weights) {
+                sum += weights[k];
+                if (r <= sum) return k;
+            }
+            return "faah";
+        }
+
+        const all_possible_lines = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        function spinReels() {
+            if (["Крутимо", "думає", "SCREAM", "БОСФАЙТ", "Захист", "заспокоївся"].some(x => game_status.includes(x))) return;
+            if (balance < current_bet) {
+                game_status = "Недостатньо грошей для прокруту! Іди працюй.";
+                updateUI();
+                return;
+            }
+
+            balance -= current_bet;
+            game_status = "Крутимо барабани...";
+            updateUI();
+            playSound('spin.wav');
+
+            let weights = getWeights();
+            let count = 0;
+            let interval = setInterval(() => {
+                for (let i = 0; i < 9; i++) {
+                    let randSym = symbols[Math.floor(Math.random() * symbols.length)];
+                    document.getElementById("slots").children[i].innerHTML = `<img src="images/${randSym}.jpg">`;
+                }
+                count++;
+                if (count > 10) {
+                    clearInterval(interval);
+                    finalizeSpin(weights);
+                }
+            }, 80);
+        }
+
+        function finalizeSpin(weights) {
+            let talisman_lvl = shop_items["talisman"]["level"];
+            let winChances = [0.25, 0.33, 0.37, 0.43, 0.50, 0.60];
+            let currentWinChance = winChances[talisman_lvl] || 0.25;
+
+            let forceWin = Math.random() < currentWinChance;
+
+            if (forceWin) {
+                let luckyLine = all_possible_lines[Math.floor(Math.random() * all_possible_lines.length)];
+                let luckySymbol = getRandomSymbol(weights);
+
+                for (let i = 0; i < 9; i++) {
+                    currentGrid[i] = getRandomSymbol(weights);
+                }
+                luckyLine.forEach(idx => {
+                    currentGrid[idx] = luckySymbol;
+                });
+            } else {
+                for (let i = 0; i < 9; i++) {
+                    currentGrid[i] = getRandomSymbol(weights);
+                }
+            }
+
+            for (let i = 0; i < 9; i++) {
+                document.getElementById("slots").children[i].innerHTML = `<img src="images/${currentGrid[i]}.jpg">`;
+            }
+
+            if (luigi_paralysis_turns > 0) luigi_paralysis_turns--;
+
+            let total_win = 0;
+            let winLinesCount = 0;
+            let winningSymbol = "";
+            let triggers = { "1488": false, "Luigi": false, "talking ben": false, "HAHAHA": false };
+
+            all_possible_lines.forEach(line => {
+                let sym0 = currentGrid[line[0]];
+                let sym1 = currentGrid[line[1]];
+                let sym2 = currentGrid[line[2]];
+                
+                if (sym0 === sym1 && sym1 === sym2) {
+                    winLinesCount++;
+                    winningSymbol = sym0;
+                    
+                    let base_win = 0;
+                    if (sym0 === "rickroll") base_win = 150;
+                    else if (sym0 === "six-seven") base_win = 167;
+                    else if (sym0 === "42") base_win = 142;
+                    else if (sym0 === "gigachad") base_win = 100;
+                    else if (sym0 === "doge") base_win = 80;
+                    else if (sym0 === "tung tung tung sahur") base_win = 67;
+                    else if (sym0 === "amogus") base_win = 50;
+                    else if (sym0 === "dog") base_win = 45;
+                    else if (sym0 === "talking ben") base_win = 33;
+                    else if (sym0 === "raaah") base_win = 25;
+                    else if (sym0 === "faah") base_win = 10;
+
+                    total_win += base_win;
+
+                    if (sym0 === "1488") triggers["1488"] = true;
+                    if (sym0 === "Luigi") triggers["Luigi"] = true;
+                    if (sym0 === "talking ben") triggers["talking ben"] = true;
+                    if (sym0 === "HAHAHA") triggers["HAHAHA"] = true;
+                }
+            });
+
+            let multi = 1 + (shop_items["authority"]["level"] * 0.25);
+            let final_reward = Math.floor(total_win * multi);
+
+            // 1. КІТ ХАХАХА (СКАМЕР) -> ТЕПЕР ЗАХИСТ ТУТ!
+            if (triggers["HAHAHA"]) {
+                if (shop_items["light_discord"]["count"] > 0) {
+                    shop_items["light_discord"]["count"]--;
+                    game_status = "Кіт хотів заскамити Вас, проте злякався Вашого діскорду";
+                } else {
+                    playSound('WAHAHAHA.mp3');
+                    balance = Math.ceil(balance / 2);
+                    game_status = `Кіт ХАХАХА заскамив Вас! Знято половину балансу. Залишилось: ${balance}$`;
+                }
+                updateUI();
+                return;
+            }
+
+            // 2. БОС 1488
+            if (triggers["1488"]) {
+                playSound('1488.mp3');
+                game_status = "Код 1488! ВІН з'явився...";
+                updateUI();
+                setTimeout(() => {
+                    startBossFight();
+                }, 2200);
+                return;
+            }
+
+            // 3. ЛУЇДЖІ
+            if (triggers["Luigi"]) {
+                if (shop_items["pasta"]["count"] > 0) {
+                    shop_items["pasta"]["count"]--;
+                    game_status = "Луїджі хотів напасти, проте паста заспокоїла його";
+                    updateUI();
+                } else {
+                    let penalty = shop_items["light_discord"]["count"] > 0 ? 5 : 0;
+                    triggerLuigiScreamer(penalty);
+                }
+                return;
+            } 
+            
+            // 4. ПЕС БЕН (talking ben) -> БЕЗ КОТЯЧОГО КОНТЕНТУ!
+            if (triggers["talking ben"]) {
+                game_status = "Бен думає над твоєю долею...";
+                updateUI();
+
+                let yesChance = shop_items["apple_juice"]["count"] > 0 ? 0.60 : 0.50;
+                if (shop_items["apple_juice"]["count"] > 0) shop_items["apple_juice"]["count"]--;
+                
+                let willSayYes = Math.random() < yesChance;
+
+                if (willSayYes) {
+                    playSound('benifyes.mp3');
+                } else {
+                    playSound('benifno.mp3');
+                }
+
+                setTimeout(() => {
+                    if (willSayYes) {
+                        let baseAmt = winLinesCount > 0 ? final_reward : Math.floor(30 * multi);
+                        let doubledAmt = baseAmt * 2;
+                        balance += doubledAmt;
+                        game_status = `Бен каже: 'YES!' Ваш виграш подвоєно на +${doubledAmt}$!`;
+                    } else {
+                        balance += final_reward;
+                        game_status = `Бен каже: 'NO!' Виграш залишився звичайним: +${final_reward}$`;
+                    }
+                    updateUI();
+                }, 5000);
+                return;
+            }
+
+            // ЗВИЧАЙНИЙ ВИГРАШ (ЗІ ЗВУКАМИ МЕМІВ)
+            if (winLinesCount > 0) {
+                balance += final_reward;
+                game_status = `Виграш! Ліній: ${winLinesCount}. Нараховано +${final_reward}$!`;
+                
+                if (winningSymbol === "raaah") playSound('raah.mp3');
+                else if (winningSymbol === "faah") playSound('fah.mp3');
+                else if (winningSymbol === "tung tung tung sahur") playSound('tun sahur.mp3');
+                else if (winningSymbol === "six-seven") playSound('six-seven.mp3');
+                else if (winningSymbol === "rickroll") playSound('rickroll.mp3');
+                else if (winningSymbol === "gigachad") playSound('gigachad.mp3');
+                else if (winningSymbol === "dog") playSound('dogwatch.mp3');
+                else if (winningSymbol === "doge") playSound('bonk.mp3');
+                else if (winningSymbol === "amogus") playSound('amogus.mp3');
+                else if (winningSymbol === "42") playSound('42.mp3');
+                else playSound('win.wav');
+            } else {
+                game_status = "Спробуй ще раз! Фортуна любить наполегливих.";
+            }
+            updateUI();
+        }
+
+        function triggerLuigiScreamer(penalty) {
+            balance -= penalty;
+            luigi_paralysis_turns = 3;
+            document.getElementById("screamer-banner").innerText = penalty > 0 ? `!!!LUIGI JUMPSCARE!!! (-${penalty}$ за тему)` : "!!!LUIGI JUMPSCARE!!!";
+            document.getElementById("screamer-screen").style.display = "flex";
+            playSound('luigi.mp3');
+            
+            setTimeout(() => {
+                document.getElementById("screamer-screen").style.display = "none";
+                game_status = "Натисніть SPACE або Кликніть, щоб крутити!";
+                updateUI();
+            }, 1250);
+        }
+
+        // --- РЕЖИМ РОБОТИ ---
+        function openJob() { 
+            is_job_open = true; 
+            document.getElementById("job-screen").style.display = "flex"; 
+            playMusic('job.mp3');
+            spawnSpecificPoops(5); 
+        }
+        function closeJob() { 
+            is_job_open = false; 
+            document.getElementById("job-screen").style.display = "none"; 
+            stopMusic();
+            updateUI(); 
+        }
+        
+        function spawnSpecificPoops(amount) {
+            const zone = document.getElementById("work-zone");
+            for(let i=0; i<amount; i++) {
+                let p = document.createElement("div");
+                p.className = "poop";
+                p.innerHTML = `<img src="images/poop.png">`;
+                p.style.left = (Math.random() * 640 + 30) + "px";
+                p.style.top = (Math.random() * 300 + 30) + "px";
+                p.onclick = (e) => { e.stopPropagation(); cleanPoop(p); };
+                zone.appendChild(p);
+            }
+        }
+
+        function cleanPoop(el) {
+            el.remove();
+            cleaned_poops_count++;
+            playSound('fart.mp3'); 
+            if (cleaned_poops_count % 10 === 0) {
+                balance += 5;
+                playSound('money.mp3'); 
+            }
+            document.getElementById("job-progress").innerText = `Прогрес до зарплати: ${cleaned_poops_count % 10}/10 (Дають 5$)`;
+            document.getElementById("job-stats").innerText = `Баланс: ${balance}$ | Прибрано: ${cleaned_poops_count}`;
+            
+            let remaining = document.querySelectorAll('.poop').length;
+            if (remaining === 2) {
+                spawnSpecificPoops(4);
+            }
+        }
+
+        // --- РЕЖИМ МАГАЗИНУ ---
+        function openShop() {
+            is_shop_open = true;
+            insufficient_funds_trigger = false;
+            document.getElementById("shop-screen").style.display = "flex";
+            playMusic('catshop.mp3');
+            renderShop();
+        }
+        function closeShop() { 
+            is_shop_open = false; 
+            document.getElementById("shop-screen").style.display = "none"; 
+            stopMusic();
+            updateUI(); 
+        }
+        
+        function renderShop() {
+            const container = document.getElementById("shop-items-container");
+            container.innerHTML = "";
+            
+            for(let key in shop_items) {
+                let item = shop_items[key];
+                let currentCost = item.multi ? (key === "authority" ? authority_levels[item.level] : talisman_levels[item.level]) : item.cost;
+                let costStr = currentCost !== undefined ? currentCost + "$" : "МАКС";
+                if(item.level >= item.max_level && item.multi) costStr = "МАКС";
+                
+                let card = document.createElement("div");
+                card.className = "shop-item-card";
+                card.innerHTML = `
+                    <div>
+                        <b style="font-size: 18px;">${item.name} ${item.multi ? `(Рівень ${item.level})` : `(x${item.count})`}</b>
+                        <div style="font-size: 12px; color: #aaa; margin-top: 3px;">${item.desc}</div>
+                    </div>
+                    <span style="color: #ffd700; font-weight: bold; font-size: 18px;">${costStr}</span>
+                `;
+                
+                card.onmouseenter = () => { 
+                    if(!insufficient_funds_trigger) {
+                        document.getElementById("cat-speech").innerText = item.cat_joke; 
+                    }
+                };
+                card.onmouseleave = () => {
+                    if(!insufficient_funds_trigger) {
+                        document.getElementById("cat-speech").innerText = "Вітаю у своєму магазинчику!";
+                    }
+                };
+                card.onclick = () => { buyItem(key, currentCost); };
+                container.appendChild(card);
+            }
+        }
+
+        function buyItem(key, cost) {
+            if (cost === undefined || shop_items[key].level >= shop_items[key].max_level) return;
+            if (balance < cost) {
+                insufficient_funds_trigger = true;
+                document.getElementById("cat-speech").innerText = "Я ж бачу що в тебе немає грошей! Кого ти дуриш? Хіба по моєму обличчю не видно що я розумний?!";
+                playSound('cat_angry.wav');
+                return;
+            }
+            
+            insufficient_funds_trigger = false;
+            balance -= cost;
+            if (shop_items[key].multi) shop_items[key].level++;
+            else shop_items[key].count++;
+            
+            playSound('money.mp3'); 
+            document.getElementById("cat-speech").innerText = "Дякую за покупку, друже!";
+            renderShop();
+            updateUI(); 
+        }
+
+        // --- БОСФАЙТ ---
+        let bossLoopInterval = null;
+        let bulletSpawnInterval = null;
+        let bombSpawnInterval = null;
+        let heart = { x: 150, y: 150, speed: 4 };
+        let hp = 100;
+        let invincibleTimer = 0;
+        let bossTimeRemaining = 30;
+        let bulletsList = [];
+        let bombsList = [];
+        let explosionsList = [];
+        let keysPressed = {};
+
+        function startBossFight() {
+            game_status = "БОСФАЙТ! Битва розпочалась!";
+            updateUI();
+            playMusic('fight.mp3');
+            
+            document.getElementById("boss-screen").style.display = "flex";
+            hp = 100;
+            bossTimeRemaining = 30;
+            bulletsList = []; bombsList = []; explosionsList = [];
+            heart.x = 150; heart.y = 150;
+            
+            let timerInterval = setInterval(() => {
+                bossTimeRemaining--;
+                document.getElementById("boss-timer").innerText = `Час: ${bossTimeRemaining} сек`;
+                if (bossTimeRemaining <= 0 || hp <= 0) {
+                    clearInterval(timerInterval);
+                    endBossFight(hp > 0);
+                }
+            }, 1000);
+
+            bulletSpawnInterval = setInterval(spawnBossBullet, 450);
+            bombSpawnInterval = setInterval(spawnBossBomb, 3000);
+            bossLoopInterval = setInterval(bossUpdate, 1000 / 60);
+        }
+
+        function spawnBossBullet() {
+            const sides = ["top", "bottom", "left", "right"];
+            let side = sides[Math.floor(Math.random() * sides.length)];
+            let bx = 0, by = 0, vx = 0, vy = 0;
+            
+            if (side === "top") { bx = Math.random() * 300; by = -20; vx = 0; vy = Math.random() * 1.5 + 2; }
+            else if (side === "bottom") { bx = Math.random() * 300; by = 320; vx = 0; vy = -(Math.random() * 1.5 + 2); }
+            else if (side === "left") { bx = -20; by = Math.random() * 300; vx = Math.random() * 1.5 + 2; vy = 0; }
+            else { bx = 320; by = Math.random() * 300; vx = -(Math.random() * 1.5 + 2); vy = 0; }
+            
+            let el = document.createElement("div");
+            el.className = "boss-bullet";
+            el.innerHTML = `<img src="images/bullet.png">`;
+            document.getElementById("boss-area").appendChild(el);
+            bulletsList.push({ el, x: bx, y: by, vx, vy });
+        }
+
+        function spawnBossBomb() {
+            let el = document.createElement("div");
+            el.className = "boss-bomb";
+            el.innerHTML = `<img src="images/bomb.png">`;
+            document.getElementById("boss-area").appendChild(el);
+            bombsList.push({ el, x: heart.x, y: heart.y, spawnTime: Date.now() });
+        }
+
+        function bossUpdate() {
+            if (keysPressed["ArrowLeft"] || keysPressed["a"]) heart.x -= heart.speed;
+            if (keysPressed["ArrowRight"] || keysPressed["d"]) heart.x += heart.speed;
+            if (keysPressed["ArrowUp"] || keysPressed["w"]) heart.y -= heart.speed;
+            if (keysPressed["ArrowDown"] || keysPressed["s"]) heart.y += heart.speed;
+
+            if (heart.x < 10) heart.x = 10; if (heart.x > 290) heart.x = 290;
+            if (heart.y < 10) heart.y = 10; if (heart.y > 290) heart.y = 290;
+
+            const hEl = document.getElementById("heart");
+            hEl.style.left = heart.x + "px";
+            hEl.style.top = heart.y + "px";
+
+            let now = Date.now();
+
+            for(let i = bulletsList.length - 1; i >= 0; i--) {
+                let b = bulletsList[i];
+                b.x += b.vx; b.y += b.vy;
+                b.el.style.left = b.x + "px";
+                b.el.style.top = b.y + "px";
+
+                let dist = Math.hypot(b.x - heart.x, b.y - heart.y);
+                if (dist < 16 && now > invincibleTimer) {
+                    hp -= 10;
+                    invincibleTimer = now + 500;
+                    b.el.remove();
+                    bulletsList.splice(i, 1);
+                    playSound('boss_hit.wav');
+                    continue;
+                }
+
+                if (b.x < -40 || b.x > 340 || b.y < -40 || b.y > 340) {
+                    b.el.remove();
+                    bulletsList.splice(i, 1);
+                }
+            }
+
+            for(let i = bombsList.length - 1; i >= 0; i--) {
+                let b = bombsList[i];
+                let elapsed = now - b.spawnTime;
+                b.el.style.left = b.x + "px";
+                b.el.style.top = b.y + "px";
+
+                if (elapsed > 1500) b.el.classList.add("blinking");
+
+                if (elapsed >= 2000) {
+                    b.el.remove();
+                    bombsList.splice(i, 1);
+                    
+                    let expEl = document.createElement("div");
+                    expEl.className = "explosion-ring";
+                    expEl.style.left = b.x + "px";
+                    expEl.style.top = b.y + "px";
+                    expEl.style.width = "0px";
+                    expEl.style.height = "0px";
+                    document.getElementById("boss-area").appendChild(expEl);
+                    explosionsList.push({ el: expEl, x: b.x, y: b.y, explodeTime: now });
+                    playSound('explosion.wav');
+                }
+            }
+
+            for(let i = explosionsList.length - 1; i >= 0; i--) {
+                let exp = explosionsList[i];
+                let elapsed = now - exp.explodeTime;
+                let currentRadius = (elapsed / 500) * 120;
+                
+                exp.el.style.width = (currentRadius * 2) + "px";
+                exp.el.style.height = (currentRadius * 2) + "px";
+
+                let dist = Math.hypot(exp.x - heart.x, exp.y - heart.y);
+                if (dist < currentRadius && now > invincibleTimer && elapsed < 200) {
+                    hp -= 10;
+                    invincibleTimer = now + 500;
+                    playSound('boss_hit.wav');
+                }
+
+                if (elapsed >= 500) {
+                    exp.el.remove();
+                    explosionsList.splice(i, 1);
+                }
+            }
+
+            let hpDisplay = document.getElementById("boss-hp");
+            hpDisplay.innerText = `HP: ${hp} / 100`;
+            if (hp > 40) hpDisplay.style.color = "#4bff4b"; else hpDisplay.style.color = "#ff4b4b";
+
+            if (hp <= 0) {
+                endBossFight(false);
+            }
+        }
+
+        function endBossFight(isWin) {
+            clearInterval(bossLoopInterval);
+            clearInterval(bulletSpawnInterval);
+            clearInterval(bombSpawnInterval);
+            stopMusic();
+
+            bulletsList.forEach(b => b.el.remove());
+            bombsList.forEach(b => b.el.remove());
+            explosionsList.forEach(e => e.el.remove());
+
+            document.getElementById("boss-screen").style.display = "none";
+
+            if (isWin) {
+                let multiplier = 1.0 + (shop_items["authority"]["level"] * 0.25);
+                let reward = Math.floor(99 * multiplier);
+                balance += reward;
+                game_status = `Перемога у босфайті! +${reward}$`;
+                playSound('boss_win.wav');
+            } else {
+                game_status = "Ви програли босфайт! (0$)";
+                playSound('boss_lose.wav');
+            }
+            updateUI();
+        }
+
+        window.addEventListener("keydown", (e) => {
+            keysPressed[e.key] = true;
+            if (e.key === " " || e.key === "Spacebar") {
+                e.preventDefault();
+                if (!is_shop_open && !is_job_open && document.getElementById("boss-screen").style.display !== "flex") {
+                    spinReels();
+                }
+            }
+        });
+        window.addEventListener("keyup", (e) => { keysPressed[e.key] = false; });
+
+        updateUI();
+    </script>
+</body>
+</html>
