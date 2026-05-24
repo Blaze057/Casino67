@@ -30,14 +30,15 @@
         .btn-job { border-color: #4bff4b; color: #4bff4b; }
         .btn-shop { border-color: #ffd700; color: #ffd700; }
         
-        /* ЕФЕКТИ */
-        .effect-zone { position: absolute; bottom: 25px; left: 25px; width: 200px; height: 80px; background: #28282d; border: 2px solid #555; border-radius: 5px; padding: 10px; cursor: pointer; z-index: 2; }
+        /* ЕФЕКТИ НА ПК */
+        .effect-wrapper { position: absolute; bottom: 25px; left: 25px; z-index: 2; }
+        .effect-zone { width: 200px; height: 80px; background: #28282d; border: 2px solid #555; border-radius: 5px; padding: 10px; cursor: pointer; }
         .effect-zone.active { border-color: #9370db; }
         .effect-title { font-size: 16px; font-weight: bold; }
         .effect-desc { font-size: 12px; color: #888; margin-top: 5px; }
         
-        .tooltip { display: none; position: absolute; bottom: 115px; left: 25px; width: 330px; background: #141419; border: 1px solid #ff4b4b; border-radius: 6px; padding: 10px; font-size: 12px; z-index: 10; line-height: 1.5; }
-        .effect-zone:hover .tooltip { display: block; }
+        .tooltip { display: none; position: absolute; bottom: 90px; left: 0; width: 330px; background: #141419; border: 1px solid #ff4b4b; border-radius: 6px; padding: 10px; font-size: 12px; z-index: 10; line-height: 1.5; }
+        .effect-zone:hover + .tooltip, .effect-zone:active + .tooltip { display: block; }
         
         /* ЕКРАН РОБОТИ */
         #job-screen { display: none; position: absolute; inset: 0; background: #192319; flex-direction: column; align-items: center; justify-content: center; z-index: 5; }
@@ -73,7 +74,7 @@
         .explosion-ring { position: absolute; border: 3px solid #ff4b4b; background: rgba(255,75,75,0.2); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
         .boss-ui { display: flex; width: 300px; justify-content: space-between; margin-top: 15px; font-size: 20px; font-weight: bold; }
 
-        /* ВІРТУАЛЬНИЙ ДЖОЙСТИК ДЛЯ БОЮ */
+        /* ВІРТУАЛЬНИЙ ДЖОЙСТИК */
         #boss-controls { position: absolute; bottom: 30px; left: 30px; display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 10px; z-index: 10; display: none; }
         .control-btn { width: 60px; height: 60px; background: rgba(255,255,255,0.1); border: 3px solid #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #fff; cursor: pointer; transition: 0.1s; }
         .control-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
@@ -93,53 +94,64 @@
         @keyframes blink { 0%, 100% { filter: invert(0); } 50% { filter: invert(1) sepia(1) saturate(100) hue-rotate(0deg); } }
 
         /* ============================================================ */
-        /* CSS ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ (ВЕРТИКАЛЬНИЙ ПОРТРЕТНИЙ РЕЖИМ) */
+        /* НОВИЙ CSS ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ (ПОРТРЕТ) */
         /* ============================================================ */
         @media screen and (max-width: 600px) {
             .title { font-size: 26px; }
             .btn { font-size: 16px; padding: 10px 20px; }
             .balance-box { font-size: 18px; top: 15px; left: 15px; padding: 5px 12px; }
-            .status-text { font-size: 14px; min-height: 20px; margin-bottom: 15px; padding: 0 10px; }
+            .status-text { font-size: 14px; min-height: 20px; margin-bottom: 10px; padding: 0 10px; }
 
-            /* Масштабування слотів під ширину екрана */
+            /* Масштабування слотів */
             .slot-machine {
-                grid-template-columns: repeat(3, 24vw); 
+                grid-template-columns: repeat(3, 25vw); 
                 grid-gap: 3vw; 
                 padding: 4vw;
-                margin-bottom: 20px;
+                margin-bottom: 15px;
             }
-            .slot-cell { width: 24vw; height: 24vw; border-width: 2px; }
+            .slot-cell { width: 25vw; height: 25vw; border-width: 2px; }
             
-            /* Кнопка прокруту */
-            .btn-spin { width: 85vw; margin-bottom: 120px; } /* Робимо відступ знизу під блоки */
+            /* Кнопка прокруту стоїть вільно, нічого не перекриває */
+            .btn-spin { width: 85vw; margin-bottom: 15px; }
 
-            /* ПІДНІМАЄМО КНОПКИ ТА ЕФЕКТИ ВИЩЕ (щоб не заважали кнопці крутити) */
+            /* ПЕРЕНОСИМО ВСЕ В ОДИН КОМПАКТНИЙ НИЖНІЙ БЛОК */
             .side-buttons {
-                bottom: 145px; 
-                right: 7.5vw; 
-                flex-direction: row; 
-                width: 85vw; 
+                position: relative;
+                bottom: 0;
+                right: 0;
+                flex-direction: row;
+                width: 85vw;
                 justify-content: space-between;
+                gap: 10px;
+                margin-bottom: 15px;
             }
-            .btn-job, .btn-shop { flex: 1; font-size: 14px; padding: 10px 5px; text-align: center; }
-            .btn-shop { margin-left: 10px; }
+            .btn-job, .btn-shop { flex: 1; font-size: 14px; padding: 12px 5px; text-align: center; }
 
+            /* ОБЛАСТЬ ЕФЕКТІВ ПІД КНОПКАМИ */
+            .effect-wrapper {
+                position: relative;
+                bottom: 0;
+                left: 0;
+                width: 85vw;
+            }
             .effect-zone { 
-                bottom: 215px; 
-                left: 7.5vw; 
-                width: 85vw; 
+                width: 100%; 
                 height: 55px; 
                 padding: 5px 10px; 
             }
             .effect-title { font-size: 13px; }
             .effect-desc { font-size: 11px; }
-            .tooltip { bottom: 275px; left: 5vw; width: 90vw; }
 
-            /* --- ЕКРАН РОБОТИ (Чистильник) --- */
-            .work-zone { width: 90vw; height: 50vh; }
+            /* ПІДКАЗКА ВИРИНАЄ ВГОРУ (НАД ефектами, ПІД кнопками) */
+            .tooltip { 
+                bottom: 60px; 
+                left: 0; 
+                width: 85vw; 
+            }
+
+            /* --- ЕКРАН РОБОТИ --- */
+            .work-zone { width: 90vw; height: 45vh; }
             .poop { width: 12vw; height: 12vw; }
-            #job-progress { font-size: 13px; }
-            #job-stats { font-size: 16px; }
 
             /* --- ЕКРАН МАГАЗИНУ --- */
             .shop-container { flex-direction: column; gap: 10px; padding: 0 10px; }
@@ -154,21 +166,13 @@
             }
             .cat-image-box { width: 70px; height: 70px; margin-bottom: 0; }
             .cat-dialog { width: auto; flex: 1; min-height: 50px; font-size: 11px; padding: 8px; }
-            .shop-items-list { width: 100%; display: flex; flex-direction: column; gap: 8px; }
-            .shop-item-card { padding: 10px; min-height: 60px; }
-            .shop-item-card div b { font-size: 14px; }
-            .shop-item-card div .effect-desc { font-size: 10px; }
-            .shop-item-card span { font-size: 14px; }
+            .shop-items-list { width: 100%; }
 
             /* --- БОСФАЙТ --- */
             .boss-portrait { width: 100px; height: 100px; margin-bottom: 10px; }
-            .boss-box { width: 80vw; height: 80vw; border-width: 2px; }
-            .boss-ui { width: 80vw; font-size: 16px; }
-            .player-heart { font-size: 22px; width: 30px; height: 30px; }
-
-            /* Менший мобільний джойстик в кутку */
+            .boss-box { width: 80vw; height: 80vw; }
             #boss-controls { bottom: 15px; left: 15px; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(2, 50px); gap: 5px; }
-            .control-btn { width: 50px; height: 50px; font-size: 22px; border-width: 2px; }
+            .control-btn { width: 50px; height: 50px; font-size: 22px; }
         }
     </style>
 </head>
@@ -194,18 +198,21 @@
         </div>
 
         <div class="status-text" id="status-label">Натисніть SPACE або Кликніть, щоб крутити!</div>
+        
         <button class="btn btn-spin" id="spin-btn" onclick="spinReels()">Крутити! | 10$</button>
-
-        <div class="effect-zone" id="effect-box">
-            <div id="effect-content">
-                <div class="effect-title" style="color: #80805a;">Немає активних ефектів</div>
-            </div>
-            <div class="tooltip" id="effect-tooltip"></div>
-        </div>
 
         <div class="side-buttons">
             <button class="btn btn-job" onclick="openJob()">Робота 🧹</button>
             <button class="btn btn-shop" onclick="openShop()">Магазин Кота 🛒</button>
+        </div>
+
+        <div class="effect-wrapper">
+            <div class="effect-zone" id="effect-box">
+                <div id="effect-content">
+                    <div class="effect-title" style="color: #80805a;">Немає активних ефектів</div>
+                </div>
+            </div>
+            <div class="tooltip" id="effect-tooltip"></div>
         </div>
     </div>
 
@@ -285,7 +292,6 @@
 
         const symbols = Object.keys(base_symbol_weights);
         let currentGrid = Array(9).fill("six-seven");
-
         let currentBgMusic = null;
 
         function isMobileDevice() {
