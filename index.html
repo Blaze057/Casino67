@@ -74,7 +74,7 @@
         .boss-ui { display: flex; width: 300px; justify-content: space-between; margin-top: 15px; font-size: 20px; font-weight: bold; }
 
         /* ВІРТУАЛЬНИЙ ДЖОЙСТИК ДЛЯ БОЮ */
-        #boss-controls { position: absolute; bottom: 30px; left: 30px; display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 10px; z-index: 10; display: None; }
+        #boss-controls { position: absolute; bottom: 30px; left: 30px; display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 10px; z-index: 10; display: none; }
         .control-btn { width: 60px; height: 60px; background: rgba(255,255,255,0.1); border: 3px solid #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #fff; cursor: pointer; transition: 0.1s; }
         .control-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
         #btn-up { grid-column: 2; grid-row: 1; }
@@ -93,87 +93,82 @@
         @keyframes blink { 0%, 100% { filter: invert(0); } 50% { filter: invert(1) sepia(1) saturate(100) hue-rotate(0deg); } }
 
         /* ============================================================ */
-        /* CSS ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ (ОСОБЛИВО LANDSCAPE Режиму) */
+        /* CSS ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ (ВЕРТИКАЛЬНИЙ ПОРТРЕТНИЙ РЕЖИМ) */
         /* ============================================================ */
-        @media screen and (max-width: 900px) {
-            /* Загальне масштабування заголовка та кнопок */
-            .title { font-size: 28px; }
-            .btn { font-size: 16px; padding: 10px 25px; }
-            .balance-box { font-size: 20px; top: 10px; left: 10px; padding: 5px 15px; }
-            .status-text { font-size: 14px; min-height: 20px; margin-bottom: 10px; }
+        @media screen and (max-width: 600px) {
+            .title { font-size: 26px; }
+            .btn { font-size: 16px; padding: 10px 20px; }
+            .balance-box { font-size: 18px; top: 15px; left: 15px; padding: 5px 12px; }
+            .status-text { font-size: 14px; min-height: 20px; margin-bottom: 15px; padding: 0 10px; }
 
-            /* Масштабування ігрового автомата */
+            /* Масштабування слотів під ширину екрана */
             .slot-machine {
-                grid-template-columns: repeat(3, 20vw); 
-                grid-gap: 2vw; 
-                padding: 3vw;
-                margin-bottom: 15px;
+                grid-template-columns: repeat(3, 24vw); 
+                grid-gap: 3vw; 
+                padding: 4vw;
+                margin-bottom: 20px;
             }
-            .slot-cell { width: 20vw; height: 20vw; border-width: 2px; }
-            .btn-spin { width: 70vw; }
+            .slot-cell { width: 24vw; height: 24vw; border-width: 2px; }
+            
+            /* Кнопка прокруту */
+            .btn-spin { width: 85vw; margin-bottom: 120px; } /* Робимо відступ знизу під блоки */
 
-            /* Бічні кнопки та ефекти (зменшення та зсув) */
-            .side-buttons { bottom: 10px; right: 10px; gap: 5px; }
-            .effect-zone { bottom: 10px; left: 10px; width: 40vw; height: 60px; padding: 5px; }
-            .effect-title { font-size: 12px; }
-            .effect-desc { font-size: 10px; }
+            /* ПІДНІМАЄМО КНОПКИ ТА ЕФЕКТИ ВИЩЕ (щоб не заважали кнопці крутити) */
+            .side-buttons {
+                bottom: 145px; 
+                right: 7.5vw; 
+                flex-direction: row; 
+                width: 85vw; 
+                justify-content: space-between;
+            }
+            .btn-job, .btn-shop { flex: 1; font-size: 14px; padding: 10px 5px; text-align: center; }
+            .btn-shop { margin-left: 10px; }
+
+            .effect-zone { 
+                bottom: 215px; 
+                left: 7.5vw; 
+                width: 85vw; 
+                height: 55px; 
+                padding: 5px 10px; 
+            }
+            .effect-title { font-size: 13px; }
+            .effect-desc { font-size: 11px; }
+            .tooltip { bottom: 275px; left: 5vw; width: 90vw; }
 
             /* --- ЕКРАН РОБОТИ (Чистильник) --- */
-            .work-zone { width: 90vw; height: 60vh; }
-            .poop { width: 10vw; height: 10vw; }
-            #job-progress { font-size: 14px; }
-            #job-stats { font-size: 18px; }
+            .work-zone { width: 90vw; height: 50vh; }
+            .poop { width: 12vw; height: 12vw; }
+            #job-progress { font-size: 13px; }
+            #job-stats { font-size: 16px; }
 
             /* --- ЕКРАН МАГАЗИНУ --- */
-            .shop-container { flex-direction: column; gap: 15px; padding: 0 10px;}
+            .shop-container { flex-direction: column; gap: 10px; padding: 0 10px; }
             .cat-seller-zone {
                 width: 100%;
                 flex-direction: row;
                 position: relative;
                 top: 0;
-                margin-bottom: 15px;
+                margin-bottom: 10px;
                 justify-content: center;
                 gap: 10px;
             }
-            .cat-image-box { width: 80px; height: 80px; margin-bottom: 0; }
-            .cat-dialog { width: auto; flex: 1; min-height: 60px; font-size: 11px; }
-            .shop-items-list { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-            .shop-item-card { padding: 10px; flex-direction: column; align-items: flex-start; text-align: left; }
+            .cat-image-box { width: 70px; height: 70px; margin-bottom: 0; }
+            .cat-dialog { width: auto; flex: 1; min-height: 50px; font-size: 11px; padding: 8px; }
+            .shop-items-list { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+            .shop-item-card { padding: 10px; min-height: 60px; }
             .shop-item-card div b { font-size: 14px; }
             .shop-item-card div .effect-desc { font-size: 10px; }
-            .shop-item-card span { margin-top: 5px; font-size: 14px; align-self: flex-end;}
+            .shop-item-card span { font-size: 14px; }
 
             /* --- БОСФАЙТ --- */
-            .boss-portrait { width: 120px; height: 120px; margin-bottom: 10px;}
-            .boss-box { width: 70vw; height: 70vw; max-width: 300px; max-height: 300px; border-width: 2px;}
-            .boss-ui { width: 70vw; max-width: 300px; font-size: 16px;}
-            .player-heart { font-size: 20px; width: 25px; height: 25px;}
+            .boss-portrait { width: 100px; height: 100px; margin-bottom: 10px; }
+            .boss-box { width: 80vw; height: 80vw; border-width: 2px; }
+            .boss-ui { width: 80vw; font-size: 16px; }
+            .player-heart { font-size: 22px; width: 30px; height: 30px; }
 
-            /* Джойстик (трохи менше) */
-            #boss-controls { bottom: 20px; left: 20px; grid-template-columns: repeat(3, 45px); grid-template-rows: repeat(2, 45px); gap: 8px; }
-            .control-btn { width: 45px; height: 45px; font-size: 20px; border-width: 2px;}
-        }
-
-        /* Додаткові фікси для Landscape (горизонтального) режиму, щоб нічого не перекривалося */
-        @media screen and (max-width: 900px) and (orientation: landscape) {
-            #game-container { flex-direction: row; gap: 20px; }
-            .header { display: none; } /* Сховати заголовок, щоб звільнити місце */
-            
-            .slot-machine { grid-template-columns: repeat(3, 15vh); grid-gap: 1.5vh; padding: 2vh; }
-            .slot-cell { width: 15vh; height: 15vh; }
-            
-            .side-buttons { flex-direction: row; bottom: auto; top: 10px; }
-            .btn-spin { width: 30vw; position: absolute; bottom: 10px; right: 10px;}
-            .status-text { max-width: 30vw; position: absolute; bottom: 60px; right: 10px;}
-
-            /* Чистильник */
-            #job-screen .status-text { max-width: 100%; position: relative; bottom: 0; right: 0;}
-            .work-zone { width: 60vw; height: 80vh; }
-            #job-screen h1 { font-size: 24px; }
-
-            /* Магазин */
-            #shop-screen .cat-seller-zone { display: none; } /* Сховати Кота, залишити тільки товари */
-            .shop-items-list { grid-template-columns: 1fr 1fr 1fr; }
+            /* Менший мобільний джойстик в кутку */
+            #boss-controls { bottom: 15px; left: 15px; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(2, 50px); gap: 5px; }
+            .control-btn { width: 50px; height: 50px; font-size: 22px; border-width: 2px; }
         }
     </style>
 </head>
@@ -215,17 +210,17 @@
     </div>
 
     <div id="job-screen">
-        <h1 style="color: #4bff4b; margin-bottom: 10px;">СИМУЛЯТОР ЧИСТИЛЬНИКА</h1>
+        <h1 style="color: #4bff4b; margin-bottom: 10px; font-size: 24px;">СИМУЛЯТОР ЧИСТИЛЬНИКА</h1>
         <div class="status-text" id="job-stats">Баланс: 200$ | Прибрано: 0</div>
         <div class="work-zone" id="work-zone"></div>
-        <div style="width: 90%; max-width: 700px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px; gap: 10px;">
-            <div id="job-progress" style="color: #ffd700;">Прогрес до зарплати: 0/10 (5$)</div>
-            <button class="btn" style="border-color: #ff4b4b; color: #ff4b4b;" onclick="closeJob()">Назад</button>
+        <div style="width: 90%; max-width: 700px; display: flex; flex-direction: column; align-items: center; margin-top: 15px; gap: 10px;">
+            <div id="job-progress" style="color: #ffd700; font-weight: bold;">Прогрес до зарплати: 0/10 (5$)</div>
+            <button class="btn" style="border-color: #ff4b4b; color: #ff4b4b; width: 100%; max-width: 200px;" onclick="closeJob()">Назад</button>
         </div>
     </div>
 
     <div id="shop-screen">
-        <h1 style="color: #ffd700; margin-bottom: 10px;">МАГАЗИН КОТА</h1>
+        <h1 style="color: #ffd700; margin-bottom: 10px; font-size: 24px;">МАГАЗИН КОТА</h1>
         <div class="status-text" id="shop-balance" style="color: #4bff4b;">Баланс: 200$</div>
         
         <div class="shop-container">
@@ -292,6 +287,10 @@
         let currentGrid = Array(9).fill("six-seven");
 
         let currentBgMusic = null;
+
+        function isMobileDevice() {
+            return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
 
         function playSound(file) {
             let sfx = new Audio(`sounds/${file}`);
@@ -470,7 +469,6 @@
             let multi = 1 + (shop_items["authority"]["level"] * 0.25);
             let final_reward = Math.floor(total_win * multi);
 
-            // 1. КІТ ХАХАХА (СКАМЕР)
             if (triggers["HAHAHA"]) {
                 if (shop_items["light_discord"]["count"] > 0) {
                     shop_items["light_discord"]["count"]--;
@@ -484,7 +482,6 @@
                 return;
             }
 
-            // 2. БОС 1488
             if (triggers["1488"]) {
                 playSound('1488.mp3');
                 game_status = "Код 1488! ВІН з'явився...";
@@ -495,7 +492,6 @@
                 return;
             }
 
-            // 3. ЛУЇДЖІ
             if (triggers["Luigi"]) {
                 if (shop_items["pasta"]["count"] > 0) {
                     shop_items["pasta"]["count"]--;
@@ -508,7 +504,6 @@
                 return;
             } 
             
-            // 4. ПЕС БЕН (talking ben)
             if (triggers["talking ben"]) {
                 game_status = "Бен думає над твоєю долею...";
                 updateUI();
@@ -539,7 +534,6 @@
                 return;
             }
 
-            // ЗВИЧАЙНИЙ ВИГРАШ
             if (winLinesCount > 0) {
                 balance += final_reward;
                 game_status = `Виграш! Ліній: ${winLinesCount}. Нараховано +${final_reward}$!`;
@@ -580,10 +574,15 @@
             is_job_open = true; 
             document.getElementById("job-screen").style.display = "flex"; 
             playMusic('job.mp3');
-            // Масштабування спавну для мобільних
+            
             let width = window.innerWidth * 0.8;
             let height = window.innerHeight * 0.5;
-            spawnSpecificPoops(5, width, height); 
+            
+            if (isMobileDevice()) {
+                spawnSpecificPoops(3, width, height); 
+            } else {
+                spawnSpecificPoops(5, width, height); 
+            }
         }
         function closeJob() { 
             is_job_open = false; 
@@ -594,7 +593,6 @@
         
         function spawnSpecificPoops(amount, maxW = 640, maxH = 300) {
             const zone = document.getElementById("work-zone");
-            // Межі зони (адаптивні)
             let zW = zone.clientWidth;
             let zH = zone.clientHeight;
             for(let i=0; i<amount; i++) {
@@ -604,7 +602,6 @@
                 p.style.left = (Math.random() * (zW - 60) + 30) + "px";
                 p.style.top = (Math.random() * (zH - 60) + 30) + "px";
                 p.onclick = (e) => { e.stopPropagation(); cleanPoop(p); };
-                // Touch подія для телефонів
                 p.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); cleanPoop(p); };
                 zone.appendChild(p);
             }
@@ -622,9 +619,16 @@
             document.getElementById("job-stats").innerText = `Баланс: ${balance}$ | Прибрано: ${cleaned_poops_count}`;
             
             let remaining = document.querySelectorAll('.poop').length;
-            if (remaining === 2) {
-                let zone = document.getElementById("work-zone");
-                spawnSpecificPoops(4, zone.clientWidth, zone.clientHeight);
+            let zone = document.getElementById("work-zone");
+            
+            if (isMobileDevice()) {
+                if (remaining === 0) {
+                    spawnSpecificPoops(2, zone.clientWidth, zone.clientHeight);
+                }
+            } else {
+                if (remaining === 2) {
+                    spawnSpecificPoops(4, zone.clientWidth, zone.clientHeight);
+                }
             }
         }
 
@@ -658,7 +662,7 @@
                 card.innerHTML = `
                     <div>
                         <b style="font-size: 18px;">${item.name} ${item.multi ? `(Рівень ${item.level})` : `(x${item.count})`}</b>
-                        <div style="font-size: 12px; color: #aaa; margin-top: 3px;">${item.desc}</div>
+                        <div class="effect-desc" style="color: #aaa; margin-top: 3px;">${item.desc}</div>
                     </div>
                     <span style="color: #ffd700; font-weight: bold; font-size: 18px;">${costStr}</span>
                 `;
@@ -682,7 +686,7 @@
             if (cost === undefined || shop_items[key].level >= shop_items[key].max_level) return;
             if (balance < cost) {
                 insufficient_funds_trigger = true;
-                document.getElementById("cat-speech").innerText = "Я ж бачу що в тебе немає грошей! Кого ти дуриш? Хіба по моєму обличчю не видно що я розумний?!";
+                document.getElementById("cat-speech").innerText = "Я ж бачу що в тебе немає грошей! Кого ти дуриш?";
                 playSound('cat_angry.wav');
                 return;
             }
@@ -710,7 +714,7 @@
         let bombsList = [];
         let explosionsList = [];
         let keysPressed = {};
-        let touchKeysPressed = {}; // Стан віртуальних кнопок
+        let touchKeysPressed = {}; 
 
         function startBossFight() {
             game_status = "БОСФАЙТ! Битва розпочалась!";
@@ -718,7 +722,6 @@
             playMusic('fight.mp3');
             
             document.getElementById("boss-screen").style.display = "flex";
-            // Автоматично показати віртуальний джойстик на мобільних
             if (isMobileDevice()) {
                 document.getElementById("boss-controls").style.display = "grid";
             } else {
@@ -742,11 +745,6 @@
             bulletSpawnInterval = setInterval(spawnBossBullet, 450);
             bombSpawnInterval = setInterval(spawnBossBomb, 3000);
             bossLoopInterval = setInterval(bossUpdate, 1000 / 60);
-        }
-
-        // Функція перевірки мобільного пристрою
-        function isMobileDevice() {
-            return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
 
         function spawnBossBullet() {
@@ -775,19 +773,16 @@
         }
 
         function bossUpdate() {
-            // Рух з клавіатури
             if (keysPressed["ArrowLeft"] || keysPressed["a"]) heart.x -= heart.speed;
             if (keysPressed["ArrowRight"] || keysPressed["d"]) heart.x += heart.speed;
             if (keysPressed["ArrowUp"] || keysPressed["w"]) heart.y -= heart.speed;
             if (keysPressed["ArrowDown"] || keysPressed["s"]) heart.y += heart.speed;
 
-            // Рух з віртуальних кнопок (для телефонів)
             if (touchKeysPressed["left"]) heart.x -= heart.speed;
             if (touchKeysPressed["right"]) heart.x += heart.speed;
             if (touchKeysPressed["up"]) heart.y -= heart.speed;
             if (touchKeysPressed["down"]) heart.y += heart.speed;
 
-            // Межі коробки
             if (heart.x < 10) heart.x = 10; if (heart.x > 290) heart.x = 290;
             if (heart.y < 10) heart.y = 10; if (heart.y > 290) heart.y = 290;
 
@@ -884,9 +879,8 @@
             explosionsList.forEach(e => e.el.remove());
 
             document.getElementById("boss-screen").style.display = "none";
-            // Сховати віртуальні кнопки
             document.getElementById("boss-controls").style.display = "none";
-            touchKeysPressed = {}; // Скинути стан кнопок
+            touchKeysPressed = {}; 
 
             if (isWin) {
                 let multiplier = 1.0 + (shop_items["authority"]["level"] * 0.25);
@@ -901,7 +895,6 @@
             updateUI();
         }
 
-        // Обробка віртуальних кнопок
         function setupVirtualControls() {
             const btns = {
                 "up": document.getElementById("btn-up"),
@@ -910,31 +903,26 @@
                 "right": document.getElementById("btn-right")
             };
 
-            // Функція для старту руху
             const startMove = (dir) => {
                 if (document.getElementById("boss-screen").style.display === "flex") {
                     touchKeysPressed[dir] = true;
                 }
             };
-            // Функція для зупинки руху
             const stopMove = (dir) => {
                 touchKeysPressed[dir] = false;
             };
 
-            // Прив'язка подій
             for (let dir in btns) {
-                // Подвійна прив'язка mousedown/mouseup для ПК і touchstart/touchend для телефонів
-                // preventDefault() важливий, щоб браузер не імітував клік мишкою після тачу
                 btns[dir].addEventListener("touchstart", (e) => { e.preventDefault(); startMove(dir); }, {passive: false});
                 btns[dir].addEventListener("touchend", (e) => { e.preventDefault(); stopMove(dir); }, {passive: false});
                 
                 btns[dir].addEventListener("mousedown", (e) => { e.preventDefault(); startMove(dir); });
                 btns[dir].addEventListener("mouseup", (e) => { e.preventDefault(); stopMove(dir); });
-                btns[dir].addEventListener("mouseleave", (e) => { e.preventDefault(); stopMove(dir); }); // На випадок якщо мишка з'їхала
+                btns[dir].addEventListener("mouseleave", (e) => { e.preventDefault(); stopMove(dir); }); 
             }
         }
 
-        setupVirtualControls(); // Запустити налаштування кнопок
+        setupVirtualControls(); 
 
         window.addEventListener("keydown", (e) => {
             keysPressed[e.key] = true;
