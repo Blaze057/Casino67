@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>Казино Six-Seven 🎰</title>
+    <title id="game-title">Казино Six-Seven 🎰</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; touch-action: none; }
         body { background-color: #000; color: #fff; font-family: 'Arial', sans-serif; overflow: hidden; }
@@ -53,24 +53,52 @@
         .shop-item-card { background: #28282d; border: 1px solid #80805a; border-radius: 8px; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; min-height: 70px;}
         .cat-seller-zone { width: 270px; display: flex; flex-direction: column; align-items: center; position: sticky; top: 20px;}
         .cat-image-box { width: 180px; height: 180px; margin-bottom: 15px; animation: float 3s ease-in-out infinite; }
-        .cat-image-box img { width: 100%; height: 100%; object-fit: contain; }
+        .cat-image-box img, .cat-image-box video { width: 100%; height: 100%; object-fit: contain; }
         .cat-dialog { background: #fff; color: #000; border-radius: 10px; padding: 12px; width: 100%; font-size: 13px; position: relative; min-height: 95px; font-weight: bold; box-shadow: 0 4px 10px rgba(255,255,255,0.2); white-space: pre-line; }
         
         /* БОСФАЙТ */
         #boss-screen { display: none; position: absolute; inset: 0; background: #000; flex-direction: column; align-items: center; justify-content: center; z-index: 6; }
-        .boss-portrait { width: 240px; height: 240px; margin-bottom: 15px; }
-        .boss-portrait img { width: 100%; height: 100%; object-fit: contain; }
-        .boss-box { width: 300px; height: 300px; border: 4px solid #fff; position: relative; background: #000; overflow: hidden; }
-        .player-heart { position: absolute; transform: translate(-50%, -50%); font-size: 30px; color: #ff0000; width: 40px; height: 40px; z-index: 1; display: flex; align-items: center; justify-content: center; }
-        .boss-bullet, .boss-bomb { position: absolute; transform: translate(-50%, -50%); }
+        
+        #boss-bg-gradient { 
+            display: none;
+            position: absolute; 
+            left: 0;
+            width: 100vw;
+            height: 250vh; 
+            bottom: 0;
+            background: linear-gradient(to top, 
+                rgba(255, 0, 0, 1) 0%, 
+                rgba(255, 0, 0, 0.8) 25%, 
+                rgba(255, 0, 0, 0.5) 50%, 
+                rgba(255, 0, 0, 0.2) 75%, 
+                transparent 100%
+            );
+            transform: translateY(100%); 
+            pointer-events: none; 
+            z-index: 0; 
+        }
+        
+        .boss-portrait { width: 240px; height: 240px; margin-bottom: 15px; z-index: 1; position: relative; display: flex; align-items: center; justify-content: center; }
+        .boss-portrait img, .boss-portrait video { width: 100%; height: 100%; object-fit: contain; }
+        
+        .boss-box { width: 300px; height: 300px; border: 4px solid #fff; position: relative; background: #000; overflow: hidden; z-index: 1; }
+        .player-heart { position: absolute; transform: translate(-50%, -50%); font-size: 30px; color: #ff0000; width: 40px; height: 40px; z-index: 2; display: flex; align-items: center; justify-content: center; }
+        .boss-bullet, .boss-bomb { position: absolute; transform: translate(-50%, -50%); z-index: 1; }
         .boss-bullet { width: 48px; height: 48px; }
         .boss-bomb { width: 72px; height: 72px; }
         .boss-bullet img, .boss-bomb img { width: 100%; height: 100%; object-fit: contain; }
         .boss-bomb.blinking { animation: blink 0.2s infinite; }
-        .explosion-ring { position: absolute; border: 3px solid #ff4b4b; background: rgba(255,75,75,0.2); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
-        .boss-ui { display: flex; width: 300px; justify-content: space-between; margin-top: 15px; font-size: 20px; font-weight: bold; align-items: center; }
+        .explosion-ring { position: absolute; border: 3px solid #ff4b4b; background: rgba(255,75,75,0.2); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 1; }
+        
+        #boss-speech-bubble { position: absolute; inset: 10px; display: none; justify-content: center; align-items: center; text-align: center; font-family: monospace; font-size: 18px; font-weight: bold; color: #fff; z-index: 5; background: rgba(0,0,0,0.85); padding: 15px; line-height: 1.4; }
+        .epic-word { color: #ff3333; text-shadow: 0 0 8px #ff0000; font-family: 'Georgia', serif; font-style: italic; font-size: 20px; }
 
+        .boss-ui { display: flex; width: 300px; justify-content: space-between; margin-top: 15px; font-size: 20px; font-weight: bold; align-items: center; z-index: 1; }
         .btn-escape { border-color: #ffaa00; color: #ffaa00; padding: 6px 16px; font-size: 14px; border-radius: 8px; }
+
+        #rpg-choice-container { display: none; position: absolute; bottom: 80px; width: 300px; justify-content: space-between; z-index: 10; }
+        .rpg-btn { width: 130px; padding: 10px; background: #000; border: 3px solid #ffaa00; color: #fff; font-family: monospace; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 4px; text-align: center; }
+        .rpg-btn:hover { background: #222; color: #ffaa00; }
 
         #boss-controls { position: absolute; bottom: 30px; left: 30px; display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 10px; z-index: 10; display: none; }
         .control-btn { width: 60px; height: 60px; background: rgba(255,255,255,0.1); border: 3px solid #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #fff; cursor: pointer; }
@@ -78,40 +106,53 @@
         #btn-left { grid-column: 1; grid-row: 2; }
         #btn-down { grid-column: 2; grid-row: 2; }
         #btn-right { grid-column: 3; grid-row: 2; }
+
+        #demo-thanks-text { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 4; justify-content: center; align-items: center; text-align: center; font-size: 22px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px #ffd700; padding: 20px; }
         
         #screamer-screen { display: none; position: absolute; inset: 0; background: #ff0000; z-index: 10; flex-direction: column; align-items: center; justify-content: center; }
         .screamer-box { width: 80vw; height: 70vh; animation: shake 0.1s infinite; }
         .screamer-box img { width: 100%; height: 100%; object-fit: contain; }
         .screamer-text { font-size: 50px; color: #ffd700; font-weight: bold; text-align: center; margin-top: 20px; }
 
+        .fullscreen-ending { display: none; position: absolute; inset: 0; background: #000; z-index: 100; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .ending-story { font-size: 24px; max-width: 650px; line-height: 1.6; color: #fff; margin-bottom: 30px; font-weight: bold; }
+        .ending-img { width: 85vw; max-width: 500px; border: 4px solid #fff; border-radius: 10px; }
+
+        #error-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
+        .error-window { width: 340px; background: #f0f0f0; border: 1px solid #0054e3; box-shadow: 3px 3px 15px rgba(0,0,0,0.5); font-family: 'Tahoma', sans-serif; color: #000; }
+        .error-titlebar { background: linear-gradient(to right, #0054e3, #267bef); padding: 5px 10px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: bold; font-size: 13px; }
+        .error-body { padding: 20px; display: flex; gap: 15px; align-items: center; }
+        .error-icon { width: 32px; height: 32px; font-size: 32px; color: #d00; font-weight: bold; }
+        .error-msg { font-size: 13px; font-weight: normal; line-height: 1.4; }
+        .error-buttons { background: #f0f0f0; padding: 10px; display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #d0d0d0; }
+        .win-btn { padding: 5px 20px; background: #fff; border: 1px solid #707070; cursor: pointer; font-size: 12px; }
+        .win-btn:hover { background: #e0e0e0; border-color: #0054e3; }
+
+        #loading-overlay { display: none; position: absolute; inset: 0; background: #111; z-index: 250; flex-direction: column; align-items: center; justify-content: center; }
+        .loader-bar-container { width: 260px; height: 24px; border: 2px solid #fff; background: #000; padding: 2px; margin-top: 15px; }
+        .loader-fill { width: 0%; height: 100%; background: #00ff00; transition: width 0.1s linear; }
+
+        #cutscene-screen { display: none; position: absolute; inset: 0; background: #000; z-index: 300; justify-content: center; align-items: center; }
+
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes shake { 0%, 100% { transform: translate(0, 0) scale(1); } 20% { transform: translate(-10px, 5px) scale(1.1); } 40% { transform: translate(10px, -5px) scale(1.05); } 60% { transform: translate(-5px, -10px) scale(1.15); } 80% { transform: translate(5px, 10px) scale(0.95); } }
-        @keyframes blink { 0%, 100% { filter: invert(0); } 50% { filter: invert(1) sepia(1) saturate(100) hue-rotate(0deg); } }
+        @keyframes blink { 0%, 100% { filter: invert(0); } 50% { filter: invert(1) sepia(1) saturate(100) } }
 
-        /* ============================================================ */
-        /* НАДІЙНИЙ МОБІЛЬНИЙ ВЕРТИКАЛЬНИЙ CSS */
-        /* ============================================================ */
         @media screen and (max-width: 600px) {
             #game-container { justify-content: flex-start; padding-top: 75px; height: 100vh; overflow: hidden; }
             .title { font-size: 26px; }
             .balance-box { font-size: 18px; top: 15px; left: 15px; padding: 5px 12px; }
             .status-text { font-size: 14px; min-height: 20px; margin-bottom: 10px; }
-
             .slot-machine { grid-template-columns: repeat(3, 24vw); grid-gap: 3vw; padding: 4vw; margin-bottom: 15px; }
             .slot-cell { width: 24vw; height: 24vw; border-width: 2px; }
-            
             .btn-spin { position: relative; width: 85vw; margin-bottom: 15px; z-index: 1; }
-
             .side-buttons { position: relative; bottom: auto; right: auto; flex-direction: row; width: 85vw; justify-content: space-between; gap: 10px; margin-bottom: 15px; z-index: 2; }
             .btn-job, .btn-shop { flex: 1; font-size: 14px; padding: 12px 5px; text-align: center; }
-
             .effect-wrapper { position: relative; bottom: auto; left: auto; width: 85vw; z-index: 3; }
             .effect-zone { width: 100%; height: 55px; padding: 5px 10px; }
             .effect-title { font-size: 13px; }
             .effect-desc { font-size: 11px; }
-
             .tooltip { bottom: 60px; left: 0; width: 85vw; }
-
             .work-zone { width: 90vw; height: 45vh; }
             .poop { width: 12vw; height: 12vw; }
             .shop-container { flex-direction: column; gap: 10px; padding: 0 10px; }
@@ -119,12 +160,14 @@
             .cat-image-box { width: 70px; height: 70px; margin-bottom: 0; }
             .cat-dialog { width: auto; flex: 1; min-height: 70px; font-size: 11px; padding: 8px; }
             .shop-items-list { width: 100%; }
-            
             .boss-portrait { width: 100px; height: 100px; margin-bottom: 10px; }
             .boss-box { width: 80vw; height: 80vw; }
             .boss-ui { width: 80vw; }
             #boss-controls { bottom: 15px; left: 15px; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(2, 50px); gap: 5px; }
             .control-btn { width: 50px; height: 50px; font-size: 22px; }
+            .ending-story { font-size: 16px; }
+            #rpg-choice-container { bottom: 70px; width: 80vw; }
+            .rpg-btn { width: 45%; font-size: 15px; }
         }
     </style>
 </head>
@@ -134,7 +177,7 @@
         <div class="balance-box" id="balance-display">200$</div>
 
         <div class="header">
-            <div class="title">CASINO SIX-SEVEN</div>
+            <div class="title" id="main-title">CASINO SIX-SEVEN</div>
         </div>
 
         <div class="slot-machine" id="slots">
@@ -153,7 +196,7 @@
         
         <button class="btn btn-spin" id="spin-btn" onclick="spinReels()">Крутити! | 10$</button>
 
-        <div class="side-buttons">
+        <div class="side-buttons" id="side-actions">
             <button class="btn btn-job" onclick="openJob()">Робота 🧹</button>
             <button class="btn btn-shop" onclick="openShop()">Магазин Кота 🛒</button>
         </div>
@@ -174,18 +217,21 @@
         <div class="work-zone" id="work-zone"></div>
         <div style="width: 90%; max-width: 700px; display: flex; flex-direction: column; align-items: center; margin-top: 15px; gap: 10px;">
             <div id="job-progress" style="color: #ffd700; font-weight: bold;">Прогрес до зарплати: 0/10 (5$)</div>
-            <button class="btn" style="border-color: #ff4b4b; color: #ff4b4b; width: 100%; max-width: 200px;" onclick="closeJob()">Назад</button>
+            <div style="display: flex; gap: 10px; width: 100%; justify-content: center;" id="job-action-block">
+                <button class="btn" style="border-color: #ff4b4b; color: #ff4b4b; width: 120px;" onclick="closeJob()">Назад</button>
+                <button class="btn" id="leave-casino-btn" style="border-color: #ffd700; color: #ffd700; display: none;" onclick="triggerEnding1()">Залишити казино 🚪</button>
+            </div>
         </div>
     </div>
 
     <div id="shop-screen">
-        <h1 style="color: #ffd700; margin-bottom: 10px; font-size: 24px;">МАГАЗИН КОТА</h1>
+        <h1 id="shop-header-title" style="color: #ffd700; margin-bottom: 10px; font-size: 24px;">МАГАЗИН КОТА</h1>
         <div class="status-text" id="shop-balance" style="color: #4bff4b;">Баланс: 200$</div>
         
         <div class="shop-container">
             <div class="shop-items-list" id="shop-items-container"></div>
             <div class="cat-seller-zone">
-                <div class="cat-image-box"><img src="images/cat.png"></div>
+                <div class="cat-image-box" id="cat-avatar-box"><img src="images/cat.png" id="cat-img-element"></div>
                 <div class="cat-dialog" id="cat-speech">Вітаю у своєму магазинчику!</div>
             </div>
         </div>
@@ -193,15 +239,24 @@
     </div>
 
     <div id="boss-screen">
-        <div class="boss-portrait"><img src="images/theboss.jpg"></div>
+        <div id="boss-bg-gradient"></div>
+        <div class="boss-portrait" id="boss-visual-container"><img src="images/theboss.jpg" id="boss-img-asset"></div>
         <div class="boss-box" id="boss-area">
             <div class="player-heart" id="heart">❤</div>
+            <div id="boss-speech-bubble"></div>
+            <div id="demo-thanks-text">Дякуємо за проходження демо!</div>
         </div>
         <div class="boss-ui">
             <div id="boss-timer" style="color: #ffd700;">Час: 30</div>
-            <button class="btn btn-escape" onclick="escapeBossFight()">Втекти 🏃‍♂️</button>
+            <button class="btn btn-escape" id="boss-escape-action" onclick="escapeBossFight()">Втекти 🏃‍♂️</button>
             <div id="boss-hp" style="color: #4bff4b;">HP: 100</div>
         </div>
+
+        <div id="rpg-choice-container">
+            <button class="rpg-btn" onclick="handleRpgChoice('fight')">[Fight]</button>
+            <button class="rpg-btn" onclick="handleRpgChoice('mercy')">[Mercy]</button>
+        </div>
+
         <div id="boss-controls">
             <div class="control-btn" id="btn-up">↑</div>
             <div class="control-btn" id="btn-left">←</div>
@@ -215,6 +270,40 @@
         <div class="screamer-text" id="screamer-banner">!!!LUIGI JUMPSCARE!!!</div>
     </div>
 
+    <div id="error-overlay">
+        <div class="error-window">
+            <div class="error-titlebar">
+                <span>Помилка виконання системи</span>
+                <span style="cursor:default;" onclick="closeErrorWindow()">✕</span>
+            </div>
+            <div class="error-body">
+                <div class="error-icon">⚠</div>
+                <div class="error-msg">Ця версія гри застаріла і потребує термінового оновлення безпеки.<br><br>Бажаєте завантажити оновлення зараз?</div>
+            </div>
+            <div class="error-buttons">
+                <button class="win-btn" onclick="acceptUpdate()">Так</button>
+                <button class="win-btn" onclick="closeErrorWindow()">Ні</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-overlay">
+        <h2 style="color: #fff; font-family: monospace;">Завантаження пакетів оновлення...</h2>
+        <div class="loader-bar-container">
+            <div class="loader-fill" id="loader-progress"></div>
+        </div>
+        <div id="loading-percentage" style="color: #00ff00; margin-top: 5px; font-family: monospace;">0%</div>
+    </div>
+
+    <div id="cutscene-screen">
+        <video id="cutscene-video" style="width: 100%; height: 100%; object-fit: contain;"></video>
+    </div>
+
+    <div id="ending1-screen" class="fullscreen-ending">
+        <div class="ending-story">Ви багато працювали на своїй роботі, і з часом стали менш залежним від казино. Ви зрозуміли, що є важливіші справи в житті і пішли чесно працювати.</div>
+        <img src="images/ending1.png" class="ending-img">
+    </div>
+
     <script>
         let balance = 200;
         const current_bet = 10;
@@ -223,8 +312,11 @@
         let is_job_open = false;
         let insufficient_funds_trigger = false;
 
-        let cleaned_poops_count = 0;
+        let cleaned_poops_count = 0; 
         let luigi_paralysis_turns = 0;
+
+        let null_encounters = 0;
+        let is_null_mode = false;
 
         const authority_levels = [100, 250, 500, 1200, 2500, 5300];
         const talisman_levels = [77, 277, 577, 1077, 1777];
@@ -246,29 +338,27 @@
             "rickroll": 0.75, "six-seven": 0.5
         };
 
+        const null_symbol_weights = { "Luigi": 60, "1488": 30, "HAHAHA": 10 };
         const symbols = Object.keys(base_symbol_weights);
         let currentGrid = Array(9).fill("six-seven");
         let currentBgMusic = null;
 
-        function isMobileDevice() {
-            return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        }
+        function isMobileDevice() { return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent); }
 
         function playSound(file) {
-            let sfx = new Audio(`sounds/${file}`);
-            sfx.volume = 0.5;
+            let sfx = new Audio(`sounds/${file}`); sfx.volume = 0.5;
             sfx.play().catch(e => console.log("Audio blocked"));
         }
 
         function playMusic(file) {
             if (currentBgMusic) { currentBgMusic.pause(); currentBgMusic = null; }
-            currentBgMusic = new Audio(`sounds/${file}`);
-            currentBgMusic.loop = true;
-            currentBgMusic.volume = 0.4;
+            currentBgMusic = new Audio(`sounds/${file}`); currentBgMusic.loop = true; currentBgMusic.volume = 0.4;
             currentBgMusic.play().catch(e => console.log("Music blocked"));
         }
 
         function stopMusic() { if (currentBgMusic) { currentBgMusic.pause(); currentBgMusic = null; } }
+
+        function checkAnyAction() { if (null_encounters >= 7 && !is_null_mode) { triggerSystemError(); return true; } return false; }
 
         function updateUI() {
             document.getElementById("balance-display").innerText = balance + "$";
@@ -276,37 +366,69 @@
             document.getElementById("shop-balance").innerText = `Ваш баланс: ${balance}$`;
             document.getElementById("status-label").innerText = game_status;
             
-            const isBlocked = ["Крутимо", "думає", "SCREAM", "БОСФАЙТ", "Захист", "заспокоївся"].some(x => game_status.includes(x));
+            const isBlocked = ["Крутимо", "думає", "SCREAM", "БОСФАЙТ", "Захист", "заспокоївся", "Монолог", "Зараження"].some(x => game_status.includes(x));
             const spinBtn = document.getElementById("spin-btn");
-            if (isBlocked) {
-                spinBtn.innerText = "...";
-                spinBtn.classList.add("blocked");
-            } else {
-                spinBtn.innerText = `Крутити! | ${current_bet}$`;
-                spinBtn.classList.remove("blocked");
-            }
+            if (isBlocked) { spinBtn.innerText = "..."; spinBtn.classList.add("blocked"); } 
+            else { spinBtn.innerText = `Крутити! | ${current_bet}$`; spinBtn.classList.remove("blocked"); }
+
+            if (cleaned_poops_count >= 1000 && !is_null_mode) { document.getElementById("leave-casino-btn").style.display = "block"; } 
+            else { document.getElementById("leave-casino-btn").style.display = "none"; }
             drawEffects();
         }
 
         function drawEffects() {
-            const box = document.getElementById("effect-box");
-            const content = document.getElementById("effect-content");
-            const tooltip = document.getElementById("effect-tooltip");
-            
+            const box = document.getElementById("effect-box"); const content = document.getElementById("effect-content"); const tooltip = document.getElementById("effect-tooltip");
             if (luigi_paralysis_turns > 0) {
-                box.classList.add("active");
-                content.innerHTML = `<div class="effect-title" style="color: #ff4b4b;">Параліч: ${luigi_paralysis_turns}х</div><div class="effect-desc">-10% Удача</div>`;
-                tooltip.innerHTML = `<b>Ефект 'Параліч Луїджі':</b><br>Шанс виграти зменшено на 10% на ${luigi_paralysis_turns} х.<br>З темою діскорда скрімер знімає 5$.`;
+                box.classList.add("active"); content.innerHTML = `<div class="effect-title" style="color: #ff4b4b;">Параліч: ${luigi_paralysis_turns}х</div><div class="effect-desc">-10% Удача</div>`;
+                tooltip.innerHTML = `<b>Ефект 'Параліч Луїджі':</b><br>Шанс виграти зменшено на 10% на ${luigi_paralysis_turns} х.`;
             } else {
-                box.classList.remove("active");
-                content.innerHTML = `<div class="effect-title" style="color: #808090;">Немає активних ефектів</div>`;
-                tooltip.innerHTML = "";
+                box.classList.remove("active"); content.innerHTML = `<div class="effect-title" style="color: #808090;">Немає активних ефектів</div>`; tooltip.innerHTML = "";
             }
         }
 
+        function rollNullChance() {
+            if (is_null_mode) return false;
+            if (null_encounters === 0) { if (shop_items["authority"]["level"] !== 6 || shop_items["talisman"]["level"] !== 5 || balance < 6000) return false; }
+            let chance = 0;
+            if (null_encounters === 0) chance = balance === 6666 ? 0.25 : 0.10;
+            else if (null_encounters === 1) chance = 0.20; else if (null_encounters === 2) chance = 0.35;
+            else if (null_encounters === 3) chance = 0.50; else if (null_encounters === 4) chance = 0.75;
+            else if (null_encounters === 5) chance = 1.00; else if (null_encounters >= 6) chance = 1.00;
+            return Math.random() < chance;
+        }
+
+        function getRandomSymbol(weights) {
+            let total = 0; for (let k in weights) total += weights[k];
+            let r = Math.random() * total; let sum = 0;
+            for (let k in weights) { sum += weights[k]; if (r <= sum) return k; }
+            return Object.keys(weights)[0];
+        }
+
+        const all_possible_lines = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ];
+
+        function spinReels() {
+            if (checkAnyAction()) return;
+            if (["Крутимо", "думає", "SCREAM", "БОСФАЙТ", "Захист", "заспокоївся", "Монолог", "Зараження"].some(x => game_status.includes(x))) return;
+            if (balance < current_bet) { game_status = "Недостатньо грошей для прокруту! Іди працюй."; updateUI(); return; }
+
+            balance -= current_bet; game_status = "Крутимо барабани..."; updateUI(); playSound('spin.wav');
+
+            let weights = is_null_mode ? null_symbol_weights : getWeights();
+            let isNullTriggered = rollNullChance();
+            let count = 0; let activeSymbols = Object.keys(weights);
+
+            let interval = setInterval(() => {
+                for (let i = 0; i < 9; i++) {
+                    let randSym = activeSymbols[Math.floor(Math.random() * activeSymbols.length)];
+                    document.getElementById("slots").children[i].innerHTML = `<img src="images/${randSym}.png" onerror="this.src='images/${randSym}.jpg'">`;
+                }
+                count++;
+                if (count > 10) { clearInterval(interval); finalizeSpin(weights, isNullTriggered); }
+            }, 80);
+        }
+
         function getWeights() {
-            let lvl = shop_items["talisman"]["level"];
-            let w = { ...base_symbol_weights };
+            let lvl = shop_items["talisman"]["level"]; let w = { ...base_symbol_weights };
             if (lvl >= 1) { w["faah"] = Math.max(2, w["faah"] - 5); w["dog"] += 2; w["amogus"] += 1; }
             if (lvl >= 2) { w["raaah"] = Math.max(2, w["raaah"] - 5); w["doge"] += 3; w["tung tung tung sahur"] += 1; }
             if (lvl >= 3) { w["Luigi"] = Math.max(2, w["Luigi"] - 4); w["gigachad"] += 4; w["42"] += 2; }
@@ -315,60 +437,16 @@
             return w;
         }
 
-        function getRandomSymbol(weights) {
-            let total = 0;
-            for (let k in weights) total += weights[k];
-            let r = Math.random() * total;
-            let sum = 0;
-            for (let k in weights) {
-                sum += weights[k];
-                if (r <= sum) return k;
-            }
-            return "faah";
-        }
-
-        const all_possible_lines = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],
-            [0, 4, 8], [2, 4, 6]
-        ];
-
-        function spinReels() {
-            if (["Крутимо", "думає", "SCREAM", "БОСФАЙТ", "Захист", "заспокоївся"].some(x => game_status.includes(x))) return;
-            if (balance < current_bet) {
-                game_status = "Недостатньо грошей для прокруту! Іди працюй.";
-                updateUI();
-                return;
+        function finalizeSpin(weights, isNullTriggered) {
+            let forceWin = false;
+            if (!is_null_mode) {
+                let talisman_lvl = shop_items["talisman"]["level"];
+                let winChances = [0.25, 0.33, 0.37, 0.43, 0.50, 0.60];
+                let currentWinChance = winChances[talisman_lvl] || 0.25;
+                forceWin = Math.random() < currentWinChance;
             }
 
-            balance -= current_bet;
-            game_status = "Крутимо барабани...";
-            updateUI();
-            playSound('spin.wav');
-
-            let weights = getWeights();
-            let count = 0;
-            let interval = setInterval(() => {
-                for (let i = 0; i < 9; i++) {
-                    let randSym = symbols[Math.floor(Math.random() * symbols.length)];
-                    document.getElementById("slots").children[i].innerHTML = `<img src="images/${randSym}.jpg">`;
-                }
-                count++;
-                if (count > 10) {
-                    clearInterval(interval);
-                    finalizeSpin(weights);
-                }
-            }, 80);
-        }
-
-        function finalizeSpin(weights) {
-            let talisman_lvl = shop_items["talisman"]["level"];
-            let winChances = [0.25, 0.33, 0.37, 0.43, 0.50, 0.60];
-            let currentWinChance = winChances[talisman_lvl] || 0.25;
-
-            let forceWin = Math.random() < currentWinChance;
-
-            if (forceWin) {
+            if (forceWin && !isNullTriggered) {
                 let luckyLine = all_possible_lines[Math.floor(Math.random() * all_possible_lines.length)];
                 let luckySymbol = getRandomSymbol(weights);
                 for (let i = 0; i < 9; i++) currentGrid[i] = getRandomSymbol(weights);
@@ -378,14 +456,30 @@
             }
 
             for (let i = 0; i < 9; i++) {
-                document.getElementById("slots").children[i].innerHTML = `<img src="images/${currentGrid[i]}.jpg">`;
+                document.getElementById("slots").children[i].innerHTML = `<img src="images/${currentGrid[i]}.png" onerror="this.src='images/${currentGrid[i]}.jpg'">`;
+            }
+
+            if (isNullTriggered) {
+                game_status = "Зараження системи..."; updateUI();
+                let slotIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8].sort(() => Math.random() - 0.5);
+                let currentSlotIdx = 0;
+
+                let infectionInterval = setInterval(() => {
+                    if (currentSlotIdx < slotIndices.length) {
+                        let targetCellIdx = slotIndices[currentSlotIdx];
+                        currentGrid[targetCellIdx] = "null";
+                        document.getElementById("slots").children[targetCellIdx].innerHTML = `<img src="images/null.png">`;
+                        playSound('glitches.mp3'); currentSlotIdx++;
+                    } else {
+                        clearInterval(infectionInterval); null_encounters++; processNullEncounterText();
+                    }
+                }, 350);
+                return;
             }
 
             if (luigi_paralysis_turns > 0) luigi_paralysis_turns--;
 
-            let total_win = 0;
-            let winLinesCount = 0;
-            let winningSymbol = "";
+            let total_win = 0; let winLinesCount = 0; let winningSymbol = "";
             let triggers = { "1488": false, "Luigi": false, "talking ben": false, "HAHAHA": false };
 
             all_possible_lines.forEach(line => {
@@ -393,37 +487,31 @@
                 if (sym0 === sym1 && sym1 === sym2) {
                     winLinesCount++; winningSymbol = sym0;
                     let base_win = 0;
-                    if (sym0 === "rickroll") base_win = 150;
-                    else if (sym0 === "six-seven") base_win = 267;
-                    else if (sym0 === "42") base_win = 142;
-                    else if (sym0 === "gigachad") base_win = 100;
-                    else if (sym0 === "doge") base_win = 80;
-                    else if (sym0 === "tung tung tung sahur") base_win = 67;
-                    else if (sym0 === "amogus") base_win = 50;
-                    else if (sym0 === "dog") base_win = 45;
-                    else if (sym0 === "talking ben") base_win = 33;
-                    else if (sym0 === "raaah") base_win = 25;
+                    if (sym0 === "rickroll") base_win = 150; else if (sym0 === "six-seven") base_win = 267; 
+                    else if (sym0 === "42") base_win = 142; else if (sym0 === "gigachad") base_win = 100;
+                    else if (sym0 === "doge") base_win = 80; else if (sym0 === "tung tung tung sahur") base_win = 67;
+                    else if (sym0 === "amogus") base_win = 50; else if (sym0 === "dog") base_win = 45;
+                    else if (sym0 === "talking ben") base_win = 33; else if (sym0 === "raaah") base_win = 25;
                     else if (sym0 === "faah") base_win = 10;
                     total_win += base_win;
 
-                    if (sym0 === "1488") triggers["1488"] = true;
-                    if (sym0 === "Luigi") triggers["Luigi"] = true;
-                    if (sym0 === "talking ben") triggers["talking ben"] = true;
-                    if (sym0 === "HAHAHA") triggers["HAHAHA"] = true;
+                    if (sym0 === "1488") triggers["1488"] = true; if (sym0 === "Luigi") triggers["Luigi"] = true;
+                    if (sym0 === "talking ben") triggers["talking ben"] = true; if (sym0 === "HAHAHA") triggers["HAHAHA"] = true;
                 }
             });
 
-            let authLvl = shop_items["authority"]["level"];
-            let multi = authLvl === 6 ? 3.0 : 1.0 + (authLvl * 0.25);
-            let final_reward = Math.floor(total_win * multi);
+            let final_reward = total_win;
+            if (!is_null_mode) {
+                let authLvl = shop_items["authority"]["level"];
+                let multi = authLvl === 6 ? 3.0 : 1.0 + (authLvl * 0.25);
+                final_reward = Math.floor(total_win * multi);
+            }
 
             if (triggers["HAHAHA"]) {
-                if (shop_items["light_discord"]["count"] > 0) {
-                    shop_items["light_discord"]["count"]--;
-                    game_status = "Кіт хотів заскамити Вас, проте злякався Вашого діскорду";
+                if (!is_null_mode && shop_items["light_discord"]["count"] > 0) {
+                    shop_items["light_discord"]["count"]--; game_status = "Кіт хотів заскамити Вас, проте злякався Вашого діскорду";
                 } else {
-                    playSound('WAHAHAHA.mp3');
-                    balance = Math.ceil(balance / 2);
+                    playSound('WAHAHAHA.mp3'); balance = Math.ceil(balance / 2);
                     game_status = `Кіт ХАХАХА заскамив Вас! Знято половину балансу. Залишилось: ${balance}$`;
                 }
                 updateUI(); return;
@@ -435,10 +523,10 @@
             }
 
             if (triggers["Luigi"]) {
-                if (shop_items["pasta"]["count"] > 0) {
-                    shop_items["pasta"]["count"]--; game_status = "Луїджі хотів напасти, проте паста заспокоїла його"; updateUI();
+                if (!is_null_mode && shop_items["pasta"]["count"] > 0) {
+                    shop_items["pasta"]["count"]--; game_status = "Luigi хотів напасти, проте паста заспокоїла його"; updateUI();
                 } else {
-                    let penalty = shop_items["light_discord"]["count"] > 0 ? 5 : 0; triggerLuigiScreamer(penalty);
+                    let penalty = (!is_null_mode && shop_items["light_discord"]["count"] > 0) ? 5 : 0; triggerLuigiScreamer(penalty);
                 }
                 return;
             } 
@@ -453,7 +541,7 @@
 
                 setTimeout(() => {
                     if (willSayYes) {
-                        let baseAmt = winLinesCount > 0 ? final_reward : Math.floor(30 * multi);
+                        let baseAmt = winLinesCount > 0 ? final_reward : Math.floor(30 * (1 + shop_items["authority"]["level"] * 0.25));
                         let doubledAmt = baseAmt * 2; balance += doubledAmt;
                         game_status = `Бен каже: 'YES!' Ваш виграш подвоєно на +${doubledAmt}$!`;
                     } else {
@@ -484,6 +572,17 @@
             updateUI();
         }
 
+        function processNullEncounterText() {
+            if (null_encounters === 1) game_status = "Час закривати гру";
+            else if (null_encounters === 2) game_status = "Ти мабуть не розумієш. Тобі не варто грати далі";
+            else if (null_encounters === 3) game_status = "Ти маєш закрити гру! Зроби це поки не пізно";
+            else if (null_encounters === 4) { game_status = "Добре, скажу по інакшому: Якщо не закриєш гру у тебе будуть неприємності..."; document.getElementById("side-actions").style.visibility = "hidden"; }
+            else if (null_encounters === 5) game_status = "Хахах! Добре я зрозумів тебе... Не хочеш слухати?!";
+            else if (null_encounters === 6) game_status = "Добре, добре. Це твій останній шанс покинути це місце";
+            else if (null_encounters >= 7) { game_status = "Ну все досить. З мене досить... Тепер граємо за моїми правилами..."; }
+            updateUI();
+        }
+
         function triggerLuigiScreamer(penalty) {
             balance -= penalty; luigi_paralysis_turns = 3;
             document.getElementById("screamer-banner").innerText = penalty > 0 ? `!!!LUIGI JUMPSCARE!!! (-${penalty}$ за тему)` : "!!!LUIGI JUMPSCARE!!!";
@@ -491,8 +590,34 @@
             setTimeout(() => { document.getElementById("screamer-screen").style.display = "none"; game_status = "Натисніть SPACE або Кликніть, щоб крутити!"; updateUI(); }, 1250);
         }
 
-        // --- РОБОТИ ---
+        function triggerSystemError() { playSound('error.mp3'); document.getElementById("error-overlay").style.display = "flex"; }
+        function closeErrorWindow() { document.getElementById("error-overlay").style.display = "none"; updateUI(); }
+
+        function acceptUpdate() {
+            document.getElementById("error-overlay").style.display = "none"; document.getElementById("loading-overlay").style.display = "flex";
+            let progress = 0; let randomTime = Math.random() * (10000 - 5000) + 5000; let stepTime = randomTime / 100;
+            let loadInterval = setInterval(() => {
+                progress++; document.getElementById("loader-progress").style.width = progress + "%"; document.getElementById("loading-percentage").innerText = progress + "%";
+                if (progress >= 100) { clearInterval(loadInterval); activateNullMode(); }
+            }, stepTime);
+        }
+
+        function activateNullMode() {
+            is_null_mode = true; balance = 666;
+            document.getElementById("loading-overlay").style.display = "none";
+            document.getElementById("game-title").innerText = "Казино Null ✖";
+            document.getElementById("main-title").innerText = "CASINO NULL"; document.getElementById("main-title").style.color = "#ff0000"; document.getElementById("main-title").style.textShadow = "0 0 10px #ff0000";
+            document.getElementById("shop-header-title").innerText = "МАГАЗИН NULL"; document.getElementById("shop-header-title").style.color = "#ff0000";
+            for (let i = 0; i < 9; i++) { document.getElementById("slots").children[i].innerHTML = `<img src="images/null.png">`; }
+            document.getElementById("cat-img-element").src = "images/null.png"; document.getElementById("cat-speech").innerText = "Ти сам у цьому винен. Тобі казали зупинитись.";
+            document.getElementById("side-actions").style.visibility = "visible";
+            game_status = "Ласкаво просимо до твоєї нової реальності."; updateUI();
+        }
+
+        function triggerEnding1() { if(is_null_mode) return; is_job_open = false; document.getElementById("job-screen").style.display = "none"; stopMusic(); document.getElementById("ending1-screen").style.display = "flex"; }
+
         function openJob() { 
+            if (checkAnyAction()) return;
             is_job_open = true; document.getElementById("job-screen").style.display = "flex"; playMusic('job.mp3');
             let width = window.innerWidth * 0.8; let height = window.innerHeight * 0.5;
             if (isMobileDevice()) spawnSpecificPoops(3, width, height); else spawnSpecificPoops(5, width, height); 
@@ -504,8 +629,7 @@
             for(let i=0; i<amount; i++) {
                 let p = document.createElement("div"); p.className = "poop"; p.innerHTML = `<img src="images/poop.png">`;
                 p.style.left = (Math.random() * (zW - 60) + 30) + "px"; p.style.top = (Math.random() * (zH - 60) + 30) + "px";
-                p.onclick = (e) => { e.stopPropagation(); cleanPoop(p); };
-                p.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); cleanPoop(p); };
+                p.onclick = (e) => { e.stopPropagation(); cleanPoop(p); }; p.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); cleanPoop(p); };
                 zone.appendChild(p);
             }
         }
@@ -514,107 +638,273 @@
             el.remove(); cleaned_poops_count++; playSound('fart.mp3'); 
             if (cleaned_poops_count % 10 === 0) { balance += 5; playSound('money.mp3'); }
             document.getElementById("job-progress").innerText = `Прогрес до зарплати: ${cleaned_poops_count % 10}/10 (5$)`;
+            if (cleaned_poops_count >= 1000 && !is_null_mode) { document.getElementById("leave-casino-btn").style.display = "block"; }
             document.getElementById("job-stats").innerText = `Баланс: ${balance}$ | Прибрано: ${cleaned_poops_count}`;
             let remaining = document.querySelectorAll('.poop').length; let zone = document.getElementById("work-zone");
             if (isMobileDevice() && remaining === 0) spawnSpecificPoops(2, zone.clientWidth, zone.clientHeight);
             else if (!isMobileDevice() && remaining === 2) spawnSpecificPoops(4, zone.clientWidth, zone.clientHeight);
         }
 
-        // --- МАГАЗИН ---
-        function openShop() { is_shop_open = true; insufficient_funds_trigger = false; document.getElementById("shop-screen").style.display = "flex"; playMusic('catshop.mp3'); renderShop(); }
+        function openShop() { if (checkAnyAction()) return; is_shop_open = true; insufficient_funds_trigger = false; document.getElementById("shop-screen").style.display = "flex"; playMusic('catshop.mp3'); renderShop(); }
         function closeShop() { is_shop_open = false; document.getElementById("shop-screen").style.display = "none"; stopMusic(); updateUI(); }
         
         function renderShop() {
             const container = document.getElementById("shop-items-container"); container.innerHTML = "";
             for(let key in shop_items) {
                 let item = shop_items[key];
-                let currentCost = item.multi ? (key === "authority" ? authority_levels[item.level] : talisman_levels[item.level]) : item.cost;
-                let costStr = currentCost !== undefined ? currentCost + "$" : "МАКС";
-                if(item.level >= item.max_level && item.multi) costStr = "МАКС";
+                let levelNameStr = item.multi ? `(Рівень ${item.level})` : `(x${item.count})`;
+                let costStr = item.multi ? (key === "authority" ? authority_levels[item.level] : talisman_levels[item.level]) + "$" : item.cost + "$";
+                if (is_null_mode) { levelNameStr = `(Рівень -∞)`; costStr = "-∞$"; } 
+                else if (item.multi && item.level >= item.max_level) { costStr = "МАКС"; }
                 
                 let card = document.createElement("div"); card.className = "shop-item-card";
-                card.innerHTML = `<div><b style="font-size: 18px;">${item.name} ${item.multi ? `(Рівень ${item.level})` : `(x${item.count})`}</b><div class="effect-desc" style="color: #aaa; margin-top: 3px;">${item.desc}</div></div><span style="color: #ffd700; font-weight: bold; font-size: 18px;">${costStr}</span>`;
-                
-                card.onmouseenter = () => { getCatSpeech(key); };
-                card.onclick = () => { buyItem(key, currentCost); };
+                card.innerHTML = `<div><b style="font-size: 18px;">${item.name} ${levelNameStr}</b><div class="effect-desc" style="color: #aaa; margin-top: 3px;">${item.desc}</div></div><span style="color: #ffd700; font-weight: bold; font-size: 18px;">${costStr}</span>`;
+                card.onmouseenter = () => { getCatSpeech(key); }; card.onclick = () => { buyItem(key); };
                 container.appendChild(card);
             }
         }
 
         function getCatSpeech(key) {
-            if (insufficient_funds_trigger) return;
-            let item = shop_items[key];
-            let extra = "";
-
-            if (key === "talisman" && item.level < item.max_level) {
-                extra = `\n\nШанс виграшу: ${win_chances_history[item.level]} -> ${win_chances_history[item.level + 1]}`;
-            } else if (key === "authority" && item.level < item.max_level) {
-                extra = `\n\nMножник прибутку: ${authority_multi_history[item.level]} -> ${authority_multi_history[item.level + 1]}`;
+            if (is_null_mode) {
+                const null_quotes = { "authority": "ти дійсно думаєш що заслуговуєш на це?", "apple_juice": "тобі немає для кого це використати тут...", "talisman": "Удача сьогодні не на твоїй стороні", "light_discord": "Я не збираюсь облегшувати тобі життя", "pasta": "Забув замовити на сьогодні пармезан, тому ні." };
+                document.getElementById("cat-speech").innerText = null_quotes[key] || "Уходь."; return;
             }
+            if (insufficient_funds_trigger) return;
+            let item = shop_items[key]; let extra = "";
+            if (key === "talisman" && item.level < item.max_level) { extra = `\n\nШанс виграшу: ${win_chances_history[item.level]} -> ${win_chances_history[item.level + 1]}`; } 
+            else if (key === "authority" && item.level < item.max_level) { extra = `\n\nMножник прибутку: ${authority_multi_history[item.level]} -> ${authority_multi_history[item.level + 1]}`; }
             document.getElementById("cat-speech").innerText = item.cat_joke + extra;
         }
 
-        function buyItem(key, cost) {
-            if (cost === undefined || shop_items[key].level >= shop_items[key].max_level) return;
-            if (balance < cost) {
-                insufficient_funds_trigger = true;
-                document.getElementById("cat-speech").innerText = "Я ж бачу що в тебе немає грошей! Кого ти дуриш?";
-                playSound('cat_angry.wav'); return;
-            }
-            insufficient_funds_trigger = false; balance -= cost;
+        function buyItem(key) {
+            if (is_null_mode) { document.getElementById("cat-speech").innerText = "Тобі більше нічого не допоможе..."; return; }
+            let currentCost = shop_items[key].multi ? (key === "authority" ? authority_levels[shop_items[key].level] : talisman_levels[shop_items[key].level]) : shop_items[key].cost;
+            if (currentCost === undefined || shop_items[key].level >= shop_items[key].max_level) return;
+            if (balance < currentCost) { insufficient_funds_trigger = true; document.getElementById("cat-speech").innerText = "Я ж бачу що в тебе немає грошей! Кого ти дуриш?"; playSound('cat_angry.wav'); return; }
+            insufficient_funds_trigger = false; balance -= currentCost;
             if (shop_items[key].multi) shop_items[key].level++; else shop_items[key].count++;
-            
-            playSound('money.mp3');
-            renderShop();
-            getCatSpeech(key);
-            updateUI(); 
+            playSound('money.mp3'); renderShop(); getCatSpeech(key); updateUI(); 
         }
 
         // --- БОСФАЙТ ---
         let bossLoopInterval = null, bulletSpawnInterval = null, bombSpawnInterval = null;
         let heart = { x: 150, y: 150, speed: 4 }, hp = 100, invincibleTimer = 0, bossTimeRemaining = 30;
         let bulletsList = [], bombsList = [], explosionsList = [], keysPressed = {}, touchKeysPressed = {}; 
+        let gradientDirection = 1, gradientPosition = 120;
+        let isTrueBossPhase = false; 
+
+        // Таймінги та логіка другої фази
+        let truePhaseStartTime = 0;
+        let truePhaseAttackInterval = null;
 
         function startBossFight() {
             game_status = "БОСФАЙТ! Битва розпочалась!"; updateUI(); playMusic('fight.mp3');
             document.getElementById("boss-screen").style.display = "flex";
             document.getElementById("boss-controls").style.display = isMobileDevice() ? "grid" : "none";
-            hp = 100; bossTimeRemaining = 30; bulletsList = []; bombsList = []; explosionsList = []; heart.x = 150; heart.y = 150;
+            document.getElementById("boss-escape-action").style.display = "block";
+            document.getElementById("rpg-choice-container").style.display = "none";
+            document.getElementById("boss-speech-bubble").style.display = "none";
+            document.getElementById("demo-thanks-text").style.display = "none";
             
+            document.getElementById("boss-bg-gradient").style.display = "none";
+            document.getElementById("boss-img-asset").outerHTML = `<img src="images/theboss.jpg" id="boss-img-asset">`;
+            
+            hp = 100; bossTimeRemaining = 30; bulletsList = []; bombsList = []; explosionsList = []; heart.x = 150; heart.y = 150;
+            isTrueBossPhase = false;
+            if (truePhaseAttackInterval) clearInterval(truePhaseAttackInterval);
+
             let timerInterval = setInterval(() => {
-                if (document.getElementById("boss-screen").style.display !== "flex") { clearInterval(timerInterval); return; }
+                if (document.getElementById("boss-screen").style.display !== "flex" || isTrueBossPhase) { clearInterval(timerInterval); return; }
                 bossTimeRemaining--; document.getElementById("boss-timer").innerText = `Час: ${bossTimeRemaining}`;
-                if (bossTimeRemaining <= 0 || hp <= 0) { clearInterval(timerInterval); endBossFight(hp > 0); }
+                if (bossTimeRemaining <= 0) { clearInterval(timerInterval); triggerRpgChoicePhase(); }
             }, 1000);
-            bulletSpawnInterval = setInterval(spawnBossBullet, 450); bombSpawnInterval = setInterval(spawnBossBomb, 3000);
+            
+            bulletSpawnInterval = setInterval(spawnBossBullet, 450); 
+            bombSpawnInterval = setInterval(spawnBossBomb, 3000);
             bossLoopInterval = setInterval(bossUpdate, 1000 / 60);
         }
 
+        function triggerRpgChoicePhase() {
+            stopMusic();
+            clearInterval(bulletSpawnInterval); clearInterval(bombSpawnInterval);
+            bulletsList.forEach(b => b.el.remove()); bulletsList = [];
+            bombsList.forEach(b => b.el.remove()); bombsList = [];
+            explosionsList.forEach(e => e.el.remove()); explosionsList = [];
+            
+            document.getElementById("boss-escape-action").style.display = "none";
+            document.getElementById("rpg-choice-container").style.display = "flex";
+            game_status = "Оберіть свою дію..."; updateUI();
+        }
+
+        function handleRpgChoice(choice) {
+            document.getElementById("rpg-choice-container").style.display = "none";
+            
+            if (choice === 'mercy') {
+                clearInterval(bossLoopInterval); document.getElementById("boss-screen").style.display = "none";
+                balance += 500; game_status = "Ви вчинили по доброму з Паном 1488, ось Вам репарації (+500$)"; updateUI();
+            } else if (choice === 'fight') {
+                isTrueBossPhase = true; game_status = "Монолог Пана 1488..."; updateUI();
+                document.getElementById("boss-img-asset").src = "images/bosswow.jpg";
+                playMusic('surrender.mp3'); 
+
+                setTimeout(() => {
+                    const container = document.getElementById("boss-visual-container");
+                    container.innerHTML = `<video id="boss-img-asset" autoplay style="width: 100%; height: 100%; object-fit: contain;"><source src="images/gotmad.mp4" type="video/mp4"></video>`;
+                    
+                    const speechBubble = document.getElementById("boss-speech-bubble");
+                    speechBubble.style.display = "flex";
+
+                    animateTextTimeline(speechBubble, [
+                        { start: 0, end: 3, text: "Ти справді думав так легко перемогти мені?" },
+                        { start: 3, end: 5, text: "Я здатен підкорювати континети" },
+                        { start: 7, end: 11, text: "Зараз ти пізнаєш мій терор", isEpic: true }
+                    ], () => {
+                        setTimeout(() => {
+                            speechBubble.style.display = "none";
+                            container.innerHTML = `<img src="images/madboss.jpg" id="boss-img-asset">`;
+                            
+                            document.getElementById("boss-bg-gradient").style.display = "block";
+                            startTrueMadFight();
+                        }, 2000); 
+                    });
+                }, 10000);
+            }
+        }
+
+        function animateTextTimeline(element, timeline, onComplete) {
+            let index = 0;
+            function runNext() {
+                if (index >= timeline.length) { onComplete(); return; }
+                let line = timeline[index];
+                element.innerHTML = line.isEpic ? `<span class="epic-word"></span>` : `<span></span>`;
+                let targetSpan = element.firstChild;
+                let chars = line.text.split(""); let charIndex = 0;
+                
+                let charInterval = setInterval(() => {
+                    if (charIndex < chars.length) { targetSpan.innerHTML += chars[charIndex]; charIndex++; } 
+                    else {
+                        clearInterval(charInterval);
+                        setTimeout(() => { index++; runNext(); }, (line.end - line.start) * 1000 - (chars.length * 40));
+                    }
+                }, 40);
+            }
+            runNext();
+        }
+
+        function startTrueMadFight() {
+            game_status = "ЦЕ СПРАВЖНІЙ ТЕРОР!"; 
+            hp = 100;
+            document.getElementById("boss-hp").innerText = `HP: ${hp}`;
+            document.getElementById("boss-timer").innerText = "Час: ???";
+            updateUI();
+
+            truePhaseStartTime = Date.now();
+            let lastBombSpawn = 0;
+            let lastPatternSpawn = 0;
+
+            truePhaseAttackInterval = setInterval(() => {
+                if (document.getElementById("boss-screen").style.display !== "flex") { clearInterval(truePhaseAttackInterval); return; }
+                
+                let elapsedSeconds = (Date.now() - truePhaseStartTime) / 1000 + 20; // +20 секунд анімації
+
+                // Атака 1: 00:23 - 00:33 (Модифіковані швидкі бомби)
+                if (elapsedSeconds >= 23 && elapsedSeconds <= 33) {
+                    if (Date.now() - lastBombSpawn >= 1000) { 
+                        spawnTruePhaseBomb();
+                        lastBombSpawn = Date.now();
+                    }
+                }
+
+                // Атака 2: 00:34 - 00:44 (Прицільні паттерни + або X з країв)
+                if (elapsedSeconds >= 34 && elapsedSeconds <= 44) {
+                    if (Date.now() - lastPatternSpawn >= 1200) {
+                        spawnTruePatternAttack();
+                        lastPatternSpawn = Date.now();
+                    }
+                }
+
+                // Кінець демо: 00:45+
+                if (elapsedSeconds >= 45) {
+                    clearInterval(truePhaseAttackInterval);
+                    bulletsList.forEach(b => b.el.remove()); bulletsList = [];
+                    bombsList.forEach(b => b.el.remove()); bombsList = [];
+                    explosionsList.forEach(e => e.el.remove()); explosionsList = [];
+                    document.getElementById("demo-thanks-text").style.display = "flex";
+                    game_status = "Демо-версію завершено!"; updateUI();
+                }
+
+            }, 1000 / 30);
+        }
+
+        function spawnTruePhaseBomb() {
+            let el = document.createElement("div"); el.className = "boss-bomb"; el.innerHTML = `<img src="images/bomb.png">`;
+            document.getElementById("boss-area").appendChild(el);
+            // Нова логіка: швидша бомба, більший радіус
+            bombsList.push({ el, x: heart.x, y: heart.y, spawnTime: Date.now(), isTrueBomb: true });
+        }
+
+        function spawnTruePatternAttack() {
+            let pattern = Math.random() < 0.5 ? 'plus' : 'cross';
+            let speed = 4.5; // Швидкі кулі
+
+            if (pattern === 'plus') {
+                // Зверху, знизу, зліва, справа летять прямо до поточного серця
+                bulletsList.push({ el: createBulletEl(), x: heart.x, y: -20, vx: 0, vy: speed });
+                bulletsList.push({ el: createBulletEl(), x: heart.x, y: 320, vx: 0, vy: -speed });
+                bulletsList.push({ el: createBulletEl(), x: -20, y: heart.y, vx: speed, vy: 0 });
+                bulletsList.push({ el: createBulletEl(), x: 320, y: heart.y, vx: -speed, vy: 0 });
+            } else {
+                // По діагоналях 'X' спрямовані у точку серця
+                let offset = 150;
+                bulletsList.push({ el: createBulletEl(), x: heart.x - offset, y: heart.y - offset, vx: speed, vy: speed });
+                bulletsList.push({ el: createBulletEl(), x: heart.x + offset, y: heart.y - offset, vx: -speed, vy: speed });
+                bulletsList.push({ el: createBulletEl(), x: heart.x - offset, y: heart.y + offset, vx: speed, vy: -speed });
+                bulletsList.push({ el: createBulletEl(), x: heart.x + offset, y: heart.y + offset, vx: -speed, vy: -speed });
+            }
+        }
+
+        function createBulletEl() {
+            let el = document.createElement("div"); el.className = "boss-bullet"; el.innerHTML = `<img src="images/bullet.png">`;
+            document.getElementById("boss-area").appendChild(el);
+            return el;
+        }
+
         function escapeBossFight() {
-            clearInterval(bossLoopInterval); clearInterval(bulletSpawnInterval); clearInterval(bombSpawnInterval); stopMusic();
+            clearInterval(bossLoopInterval); clearInterval(bulletSpawnInterval); clearInterval(bombSpawnInterval); 
+            if (truePhaseAttackInterval) clearInterval(truePhaseAttackInterval); stopMusic();
             bulletsList.forEach(b => b.el.remove()); bombsList.forEach(b => b.el.remove()); explosionsList.forEach(e => e.el.remove());
             document.getElementById("boss-screen").style.display = "none"; document.getElementById("boss-controls").style.display = "none";
-            touchKeysPressed = {}; keysPressed = {};
-            game_status = "Ви успішно втекли з поля бою! (0$)";
-            updateUI();
+            touchKeysPressed = {}; keysPressed = {}; game_status = "Ви успішно втекли з поля бою! (0$)"; updateUI();
         }
 
         function spawnBossBullet() {
             const sides = ["top", "bottom", "left", "right"]; let side = sides[Math.floor(Math.random() * sides.length)];
-            let bx = 0, by = 0, vx = 0, vy = 0;
-            if (side === "top") { bx = Math.random() * 300; by = -20; vx = 0; vy = Math.random() * 1.5 + 2; }
-            else if (side === "bottom") { bx = Math.random() * 300; by = 320; vx = 0; vy = -(Math.random() * 1.5 + 2); }
-            else if (side === "left") { bx = -20; by = Math.random() * 300; vx = Math.random() * 1.5 + 2; vy = 0; }
-            else { bx = 320; by = Math.random() * 300; vx = -(Math.random() * 1.5 + 2); vy = 0; }
+            let bx = 0, by = 0, vx = 0, vy = 0; let speedMod = 1.5;
+            if (side === "top") { bx = Math.random() * 300; by = -20; vx = 0; vy = Math.random() * speedMod + 2; }
+            else if (side === "bottom") { bx = Math.random() * 300; by = 320; vx = 0; vy = -(Math.random() * speedMod + 2); }
+            else if (side === "left") { bx = -20; by = Math.random() * 300; vx = Math.random() * speedMod + 2; vy = 0; }
+            else { bx = 320; by = Math.random() * 300; vx = -(Math.random() * speedMod + 2); vy = 0; }
             let el = document.createElement("div"); el.className = "boss-bullet"; el.innerHTML = `<img src="images/bullet.png">`;
             document.getElementById("boss-area").appendChild(el); bulletsList.push({ el, x: bx, y: by, vx, vy });
         }
+        
         function spawnBossBomb() {
             let el = document.createElement("div"); el.className = "boss-bomb"; el.innerHTML = `<img src="images/bomb.png">`;
             document.getElementById("boss-area").appendChild(el); bombsList.push({ el, x: heart.x, y: heart.y, spawnTime: Date.now() });
         }
 
         function bossUpdate() {
+            if (isTrueBossPhase && document.getElementById("boss-bg-gradient").style.display === "block") {
+                if (gradientDirection === 1) {
+                    gradientPosition -= 0.3; 
+                    if (gradientPosition <= 50) { gradientDirection = -1; } 
+                } else if (gradientDirection === -1) {
+                    gradientPosition += 0.3; 
+                    if (gradientPosition >= 120) { gradientDirection = 1; } 
+                }
+                document.getElementById("boss-bg-gradient").style.transform = `translateY(${gradientPosition}%)`;
+            }
+
             if (keysPressed["ArrowLeft"] || keysPressed["a"]) heart.x -= heart.speed; if (keysPressed["ArrowRight"] || keysPressed["d"]) heart.x += heart.speed;
             if (keysPressed["ArrowUp"] || keysPressed["w"]) heart.y -= heart.speed; if (keysPressed["ArrowDown"] || keysPressed["s"]) heart.y += heart.speed;
             if (touchKeysPressed["left"]) heart.x -= heart.speed; if (touchKeysPressed["right"]) heart.x += heart.speed;
@@ -625,37 +915,53 @@
             const hEl = document.getElementById("heart"); hEl.style.left = heart.x + "px"; hEl.style.top = heart.y + "px";
             let now = Date.now();
 
+            // Логіка оновлення об'єктів на арені
             for(let i = bulletsList.length - 1; i >= 0; i--) {
                 let b = bulletsList[i]; b.x += b.vx; b.y += b.vy; b.el.style.left = b.x + "px"; b.el.style.top = b.y + "px";
                 if (Math.hypot(b.x - heart.x, b.y - heart.y) < 16 && now > invincibleTimer) {
                     hp -= 10; invincibleTimer = now + 500; b.el.remove(); bulletsList.splice(i, 1); playSound('boss_hit.wav'); continue;
                 }
-                if (b.x < -40 || b.x > 340 || b.y < -40 || b.y > 340) { b.el.remove(); bulletsList.splice(i, 1); }
+                if (b.x < -60 || b.x > 360 || b.y < -60 || b.y > 360) { b.el.remove(); bulletsList.splice(i, 1); }
             }
+
             for(let i = bombsList.length - 1; i >= 0; i--) {
                 let b = bombsList[i]; let elapsed = now - b.spawnTime; b.el.style.left = b.x + "px"; b.el.style.top = b.y + "px";
-                if (elapsed > 1500) b.el.classList.add("blinking");
-                if (elapsed >= 2000) {
+                
+                let flashTime = b.isTrueBomb ? 1000 : 1500;
+                let explodeTime = b.isTrueBomb ? 1400 : 2000;
+
+                if (elapsed > flashTime) b.el.classList.add("blinking");
+                if (elapsed >= explodeTime) {
                     b.el.remove(); bombsList.splice(i, 1);
                     let expEl = document.createElement("div"); expEl.className = "explosion-ring"; expEl.style.left = b.x + "px"; expEl.style.top = b.y + "px"; expEl.style.width = "0px"; expEl.style.height = "0px";
-                    document.getElementById("boss-area").appendChild(expEl); explosionsList.push({ el: expEl, x: b.x, y: b.y, explodeTime: now }); playSound('explosion.wav');
+                    document.getElementById("boss-area").appendChild(expEl); 
+                    explosionsList.push({ el: expEl, x: b.x, y: b.y, explodeTime: now, isTrueBomb: b.isTrueBomb }); playSound('explosion.wav');
                 }
             }
+
             for(let i = explosionsList.length - 1; i >= 0; i--) {
-                let exp = explosionsList[i]; let elapsed = now - exp.explodeTime; let currentRadius = (elapsed / 500) * 120;
+                let exp = explosionsList[i]; let elapsed = now - exp.explodeTime; 
+                let maxRadius = exp.isTrueBomb ? 150 : 120; // На 25% більше радіус вибуху
+                let currentRadius = (elapsed / 500) * maxRadius;
+                
                 exp.el.style.width = (currentRadius * 2) + "px"; exp.el.style.height = (currentRadius * 2) + "px";
                 if (Math.hypot(exp.x - heart.x, exp.y - heart.y) < currentRadius && now > invincibleTimer) { hp -= 10; invincibleTimer = now + 500; playSound('boss_hit.wav'); }
                 if (elapsed >= 500) { exp.el.remove(); explosionsList.splice(i, 1); }
             }
+
             let hpDisplay = document.getElementById("boss-hp"); hpDisplay.innerText = `HP: ${hp}`;
             if (hp > 40) hpDisplay.style.color = "#4bff4b"; else hpDisplay.style.color = "#ff4b4b";
             if (hp <= 0) endBossFight(false);
         }
 
         function endBossFight(isWin) {
-            clearInterval(bossLoopInterval); clearInterval(bulletSpawnInterval); clearInterval(bombSpawnInterval); stopMusic();
+            clearInterval(bossLoopInterval); clearInterval(bulletSpawnInterval); clearInterval(bombSpawnInterval); 
+            if (truePhaseAttackInterval) clearInterval(truePhaseAttackInterval); stopMusic(); 
+            
             bulletsList.forEach(b => b.el.remove()); bombsList.forEach(b => b.el.remove()); explosionsList.forEach(e => e.el.remove());
             document.getElementById("boss-screen").style.display = "none"; document.getElementById("boss-controls").style.display = "none"; touchKeysPressed = {}; 
+            document.getElementById("boss-bg-gradient").style.display = "none";
+
             if (isWin) {
                 let authLvl = shop_items["authority"]["level"];
                 let multiplier = authLvl === 6 ? 3.0 : 1.0 + (authLvl * 0.25);
@@ -679,8 +985,11 @@
         setupVirtualControls(); 
 
         window.addEventListener("keydown", (e) => {
-            keysPressed[e.key] = true;
-            if (e.key === " " || e.key === "Spacebar") { e.preventDefault(); if (!is_shop_open && !is_job_open && document.getElementById("boss-screen").style.display !== "flex") spinReels(); }
+            if (e.key === " " || e.key === "Spacebar") {
+                if (checkAnyAction()) return;
+                e.preventDefault(); 
+                if (!is_shop_open && !is_job_open && document.getElementById("boss-screen").style.display !== "flex") spinReels(); 
+            } else { keysPressed[e.key] = true; }
         });
         window.addEventListener("keyup", (e) => { keysPressed[e.key] = false; });
         updateUI();
