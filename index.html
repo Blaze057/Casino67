@@ -8,46 +8,81 @@
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; touch-action: none; }
         body { background-color: #000; color: #fff; font-family: 'Arial', sans-serif; overflow: hidden; width: 100vw; height: 100vh; }
         
-        #game-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        #game-container { position: relative; width: 100vw; height: 100vh; display: flex; overflow: hidden; }
         
-        /* ГОЛОВНИЙ ЕКРАН */
-        .header { text-align: center; margin-bottom: 20px; }
-        .title { font-size: 46px; color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5); font-weight: bold; }
-        
-        .balance-box { position: absolute; top: 25px; left: 25px; background: #28282d; border: 3px solid #ffd700; border-radius: 8px; padding: 10px 25px; font-size: 30px; font-weight: bold; color: #fff; z-index: 2; }
-        
-        .slot-machine { display: grid; grid-template-columns: repeat(3, 110px); grid-gap: 15px; background: #111; padding: 20px; border-radius: 15px; border: 4px solid #fff; margin-bottom: 25px; }
+        /* Загальні фіксовані елементи */
+        .balance-box { position: absolute; top: 25px; left: 25px; background: #28282d; border: 3px solid #ffd700; border-radius: 8px; padding: 10px 25px; font-size: 30px; font-weight: bold; color: #fff; z-index: 10; }
+        .title { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5); font-weight: bold; text-align: center; }
+        .slot-machine { display: grid; grid-template-columns: repeat(3, 110px); grid-gap: 15px; background: #111; padding: 20px; border-radius: 15px; border: 4px solid #fff; }
         .slot-cell { width: 110px; height: 110px; background: #222; border: 3px solid #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .slot-cell img { width: 100%; height: 100%; object-fit: cover; }
+        .status-text { color: #fff; text-align: center; font-weight: bold; }
         
-        .status-text { font-size: 20px; color: #fff; text-align: center; min-height: 30px; margin-bottom: 20px; max-width: 600px; }
-        
-        .btn { padding: 12px 40px; font-size: 20px; font-weight: bold; border-radius: 12px; cursor: pointer; border: 3px solid transparent; transition: 0.2s; background: #28282d; color: #fff; text-align: center; }
-        .btn-spin { border-color: #4bff4b; color: #4bff4b; width: 300px; margin-bottom: 15px; }
+        .btn { font-size: 20px; font-weight: bold; border-radius: 12px; cursor: pointer; border: 3px solid transparent; transition: 0.2s; background: #28282d; color: #fff; text-align: center; }
+        .btn-spin { border-color: #4bff4b; color: #4bff4b; }
         .btn-spin.blocked { border-color: #ff4b4b; color: #ff4b4b; cursor: not-allowed; }
         
-        .side-buttons { position: absolute; bottom: 25px; right: 25px; display: flex; flex-direction: column; gap: 10px; z-index: 2; }
-        .btn-job { border-color: #4bff4b; color: #4bff4b; }
-        .btn-shop { border-color: #ffd700; color: #ffd700; }
-        
-        /* ЕФЕКТИ */
-        .effect-wrapper { position: absolute; bottom: 25px; left: 25px; z-index: 2; }
+        .effect-wrapper { position: absolute; bottom: 25px; left: 25px; z-index: 10; }
         .effect-zone { width: 200px; height: 80px; background: #28282d; border: 2px solid #555; border-radius: 5px; padding: 10px; cursor: pointer; }
         .effect-zone.active { border-color: #9370db; }
         .effect-title { font-size: 16px; font-weight: bold; }
         .effect-desc { font-size: 12px; color: #888; margin-top: 5px; }
-        
-        .tooltip { display: none; position: absolute; bottom: 90px; left: 0; width: 330px; background: #141419; border: 1px solid #ff4b4b; border-radius: 6px; padding: 10px; font-size: 12px; z-index: 10; line-height: 1.5; }
+        .tooltip { display: none; position: absolute; bottom: 90px; left: 0; width: 330px; background: #141419; border: 1px solid #ff4b4b; border-radius: 6px; padding: 10px; font-size: 12px; z-index: 20; line-height: 1.5; }
         .effect-zone:hover + .tooltip, .effect-zone:active + .tooltip { display: block; }
-        
+
+        /* ================= ПК ВЕРСІЯ ================= */
+        @media screen and (min-width: 768px) and (min-aspect-ratio: 13/9) {
+            #main-layout { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+            .title { font-size: 46px; }
+            .status-text { font-size: 20px; min-height: 30px; max-width: 600px; }
+            .btn-spin { padding: 15px 40px; width: 320px; font-size: 22px; }
+            
+            .side-buttons { position: absolute; bottom: 25px; right: 25px; display: flex; flex-direction: column; gap: 15px; z-index: 10; }
+            .btn-job, .btn-shop { width: 200px; padding: 15px 0; font-size: 18px; }
+            .btn-job { border-color: #4bff4b; color: #4bff4b; }
+            .btn-shop { border-color: #ffd700; color: #ffd700; }
+        }
+
+        /* ================= МОБІЛЬНА ВЕРСІЯ (Телефон / Планшет) ================= */
+        @media screen and (max-width: 767px) or (max-aspect-ratio: 13/9) {
+            .balance-box { font-size: 18px; top: 15px; left: 15px; padding: 6px 14px; }
+            
+            #main-layout { width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 110px; padding: 10px; align-items: center; box-sizing: border-box; }
+            
+            /* Ліва ігрова колонка (зміщена лівіше по X) */
+            .mobile-game-col { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; justify-self: center; padding-left: 10px; }
+            
+            .title { font-size: 24px; margin-bottom: 2px; }
+            
+            .slot-machine { grid-template-columns: repeat(3, 72px); grid-gap: 8px; padding: 10px; border-width: 3px; }
+            .slot-cell { width: 72px; height: 72px; border-width: 2px; }
+            
+            .status-text { font-size: 13px; max-width: 210px; min-height: 32px; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+            
+            .btn-spin { padding: 10px 0; width: 210px; font-size: 16px; border-radius: 8px; }
+            
+            /* Права колонка з кнопками дій (менші за розміром) */
+            .side-buttons { display: flex; flex-direction: column; gap: 12px; justify-content: center; align-items: center; height: 100%; padding-right: 5px; }
+            .btn-job, .btn-shop { width: 95px; height: 75px; font-size: 12px; padding: 5px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.3; }
+            .btn-job { border-color: #4bff4b; color: #4bff4b; }
+            .btn-shop { border-color: #ffd700; color: #ffd700; }
+            
+            /* Ефекти у мобільній версії */
+            .effect-wrapper { bottom: 15px; left: 15px; }
+            .effect-zone { width: 140px; height: 50px; padding: 6px; }
+            .effect-title { font-size: 11px; }
+            .effect-desc { font-size: 9px; margin-top: 2px; }
+            .tooltip { bottom: 60px; left: 0; width: 260px; }
+        }
+
         /* ЕКРАН РОБОТИ */
-        #job-screen { display: none; position: absolute; inset: 0; background: #192319; flex-direction: column; align-items: center; justify-content: center; z-index: 5; }
+        #job-screen { display: none; position: absolute; inset: 0; background: #192319; flex-direction: column; align-items: center; justify-content: center; z-index: 50; }
         .work-zone { width: 700px; height: 360px; background: #283228; border: 2px solid #80805a; border-radius: 10px; position: relative; overflow: hidden; cursor: crosshair; }
         .poop { position: absolute; width: 40px; height: 40px; cursor: pointer; transform: translate(-50%, -50%); }
         .poop img { width: 100%; height: 100%; object-fit: contain; }
         
         /* ЕКРАН МАГАЗИНУ */
-        #shop-screen { display: none; position: absolute; inset: 0; background: #000; flex-direction: column; align-items: center; justify-content: center; z-index: 5; overflow-y: auto; padding: 20px 0; }
+        #shop-screen { display: none; position: absolute; inset: 0; background: #000; flex-direction: column; align-items: center; justify-content: center; z-index: 50; overflow-y: auto; padding: 20px 0; }
         .shop-container { display: flex; gap: 40px; align-items: flex-start; max-width: 1000px; width: 100%; padding: 0 20px; }
         .shop-items-list { flex: 1; display: flex; flex-direction: column; gap: 10px; }
         .shop-item-card { background: #28282d; border: 1px solid #80805a; border-radius: 8px; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; min-height: 70px;}
@@ -57,7 +92,7 @@
         .cat-dialog { background: #fff; color: #000; border-radius: 10px; padding: 12px; width: 100%; font-size: 13px; position: relative; min-height: 95px; font-weight: bold; box-shadow: 0 4px 10px rgba(255,255,255,0.2); white-space: pre-line; }
         
         /* БОСФАЙТ */
-        #boss-screen { display: none; position: absolute; inset: 0; background: #000; flex-direction: column; align-items: center; justify-content: center; z-index: 6; }
+        #boss-screen { display: none; position: absolute; inset: 0; background: #000; flex-direction: column; align-items: center; justify-content: center; z-index: 60; }
         #boss-bg-gradient { display: none; position: absolute; left: 0; width: 100vw; height: 250vh; bottom: 0; background: linear-gradient(to top, rgba(255,0,0,1) 0%, rgba(255,0,0,0.8) 25%, rgba(255,0,0,0.5) 50%, rgba(255,0,0,0.2) 75%, transparent 100%); transform: translateY(100%); pointer-events: none; z-index: 0; }
         .boss-portrait { width: 240px; height: 240px; margin-bottom: 15px; z-index: 1; position: relative; display: flex; align-items: center; justify-content: center; }
         .boss-portrait img, .boss-portrait video { width: 100%; height: 100%; object-fit: contain; }
@@ -85,7 +120,7 @@
         #demo-thanks-text { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 4; justify-content: center; align-items: center; text-align: center; font-size: 22px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px #ffd700; padding: 20px; }
 
         /* ЕФЕКТИ СИСТЕМИ */
-        #screamer-screen { display: none; position: absolute; inset: 0; background: #ff0000; z-index: 10; flex-direction: column; align-items: center; justify-content: center; }
+        #screamer-screen { display: none; position: absolute; inset: 0; background: #ff0000; z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
         .screamer-box { width: 80vw; height: 70vh; animation: shake 0.1s infinite; }
         .screamer-box img { width: 100%; height: 100%; object-fit: contain; }
         .screamer-text { font-size: 50px; color: #ffd700; font-weight: bold; text-align: center; margin-top: 20px; }
@@ -109,44 +144,8 @@
         @keyframes shake { 0%, 100% { transform: translate(0, 0) scale(1); } 20% { transform: translate(-10px, 5px) scale(1.1); } 40% { transform: translate(10px, -5px) scale(1.05); } 60% { transform: translate(-5px, -10px) scale(1.15); } 80% { transform: translate(5px, 10px) scale(0.95); } }
         @keyframes blink { 0%, 100% { filter: invert(0); } 50% { filter: invert(1) sepia(1) saturate(100) } }
 
-        /* АДАПТИВНИЙ СТИЛЬ */
-        @media screen and (min-aspect-ratio: 13/9) and (min-width: 768px) {
-            #game-container { flex-direction: row; justify-content: space-evenly; align-items: center; gap: 40px; padding: 40px; }
-            .header { order: 1; display: flex; flex-direction: column; align-items: flex-start; text-align: left; margin-bottom: 0; }
-            .title { font-size: 38px; margin-bottom: 15px; }
-            .balance-box { position: relative; top: auto; left: auto; margin-bottom: 25px; display: inline-block; font-size: 34px; }
-            .status-text { order: 3; text-align: left; max-width: 340px; font-size: 18px; margin-top: 15px; }
-            .btn-spin { order: 2; width: 340px; height: 70px; font-size: 24px; margin-bottom: 0; }
-            .slot-machine { margin-bottom: 0; transform: scale(1.05); }
-            .side-buttons { position: relative; bottom: auto; right: auto; flex-direction: row; gap: 15px; margin-top: 20px; z-index: 2; }
-            .btn-job, .btn-shop { width: 170px; padding: 14px 10px; font-size: 16px; }
-            .effect-wrapper { position: absolute; bottom: 30px; left: 40px; }
-            .work-zone { width: 75vw; height: 55vh; }
-            .shop-container { max-width: 95vw; gap: 30px; }
-            .shop-items-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-            .shop-item-card { min-height: 85px; padding: 15px; }
-            .cat-seller-zone { width: 240px; }
-            #boss-screen { flex-direction: row; justify-content: center; gap: 60px; padding: 40px; }
-            .boss-portrait { margin-bottom: 0; width: 220px; height: 220px; }
-            .boss-box { width: 320px; height: 320px; }
-            .boss-ui { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); width: 600px; justify-content: space-between; font-size: 26px; }
-            #boss-controls { bottom: 40px; right: 40px; display: grid; }
-            #rpg-choice-container { bottom: 40px; left: 40px; width: 320px; }
-        }
-
+        /* Мобільні адаптації додаткових вікон */
         @media screen and (max-width: 767px) or (max-aspect-ratio: 13/9) {
-            #game-container { justify-content: flex-start; padding-top: 75px; height: 100vh; overflow: hidden; }
-            .title { font-size: 26px; }
-            .balance-box { font-size: 18px; top: 15px; left: 15px; padding: 5px 12px; }
-            .status-text { font-size: 14px; min-height: 20px; margin-bottom: 10px; }
-            .slot-machine { grid-template-columns: repeat(3, 24vw); grid-gap: 3vw; padding: 4vw; margin-bottom: 15px; }
-            .slot-cell { width: 24vw; height: 24vw; border-width: 2px; }
-            .btn-spin { position: relative; width: 85vw; margin-bottom: 15px; z-index: 1; }
-            .side-buttons { position: relative; bottom: auto; right: auto; flex-direction: row; width: 85vw; justify-content: space-between; gap: 10px; margin-bottom: 15px; z-index: 2; }
-            .btn-job, .btn-shop { flex: 1; font-size: 14px; padding: 12px 5px; text-align: center; }
-            .effect-wrapper { position: relative; bottom: auto; left: auto; width: 85vw; z-index: 3; }
-            .effect-zone { width: 100%; height: 55px; padding: 5px 10px; }
-            .tooltip { bottom: 60px; left: 0; width: 85vw; }
             .work-zone { width: 90vw; height: 45vh; }
             .poop { width: 12vw; height: 12vw; }
             .shop-container { flex-direction: column; gap: 10px; padding: 0 10px; }
@@ -155,12 +154,21 @@
             .cat-dialog { width: auto; flex: 1; min-height: 70px; font-size: 11px; padding: 8px; }
             .shop-items-list { width: 100%; }
             .boss-portrait { width: 100px; height: 100px; margin-bottom: 10px; }
-            .boss-box { width: 80vw; height: 80vw; }
-            .boss-ui { width: 80vw; }
-            #boss-controls { bottom: 15px; right: 15px; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(2, 50px); gap: 5px; display: none; }
+            .boss-box { width: 75vw; height: 75vw; }
+            .boss-ui { width: 75vw; }
+            #boss-controls { bottom: 15px; right: 15px; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(2, 50px); gap: 5px; }
             .control-btn { width: 50px; height: 50px; font-size: 22px; }
-            #rpg-choice-container { bottom: 70px; width: 80vw; }
+            #rpg-choice-container { bottom: 70px; width: 75vw; }
             .rpg-btn { width: 45%; font-size: 15px; }
+        }
+        
+        @media screen and (min-width: 768px) and (min-aspect-ratio: 13/9) {
+            #boss-screen { flex-direction: row; justify-content: center; gap: 60px; padding: 40px; }
+            .boss-portrait { margin-bottom: 0; width: 220px; height: 220px; }
+            .boss-box { width: 320px; height: 320px; }
+            .boss-ui { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); width: 600px; justify-content: space-between; font-size: 26px; }
+            #boss-controls { bottom: 40px; right: 40px; }
+            #rpg-choice-container { bottom: 40px; left: 40px; width: 320px; }
         }
     </style>
 </head>
@@ -169,29 +177,33 @@
     <div id="game-container">
         <div class="balance-box" id="balance-display">200$</div>
 
-        <div class="header">
-            <div class="title" id="main-title">CASINO SIX-SEVEN</div>
-        </div>
+        <div id="main-layout">
+            
+            <div class="mobile-game-col" id="game-core-block">
+                <div class="title" id="main-title">CASINO SIX-SEVEN</div>
+                
+                <div class="slot-machine" id="slots">
+                    <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+                    <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+                    <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+                    <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+                    <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+                    <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+                    <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+                    <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+                    <div class="slot-cell"><img src="images/six-seven.jpg"></div>
+                </div>
 
-        <div class="slot-machine" id="slots">
-            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
-            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
-            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
-            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
-            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
-            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
-            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
-            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
-            <div class="slot-cell"><img src="images/six-seven.jpg"></div>
-        </div>
+                <div class="status-text" id="status-label">Натисніть SPACE або Кликніть, щоб крутити!</div>
+                
+                <button class="btn btn-spin" id="spin-btn" onclick="spinReels()">Крутити! | 10$</button>
+            </div>
 
-        <div class="status-text" id="status-label">Натисніть SPACE або Кликніть, щоб крутити!</div>
-        
-        <button class="btn btn-spin" id="spin-btn" onclick="spinReels()">Крутити! | 10$</button>
+            <div class="side-buttons" id="side-actions">
+                <button class="btn btn-job" onclick="openJob()">Робота<br>🧹</button>
+                <button class="btn btn-shop" onclick="openShop()">Магазин<br>🛒</button>
+            </div>
 
-        <div class="side-buttons" id="side-actions">
-            <button class="btn btn-job" onclick="openJob()">Робота 🧹</button>
-            <button class="btn btn-shop" onclick="openShop()">Магазин Кота 🛒</button>
         </div>
 
         <div class="effect-wrapper">
@@ -211,15 +223,15 @@
         <div style="width: 90%; max-width: 700px; display: flex; flex-direction: column; align-items: center; margin-top: 15px; gap: 10px;">
             <div id="job-progress" style="color: #ffd700; font-weight: bold;">Прогрес до зарплати: 0/10 (5$)</div>
             <div style="display: flex; gap: 10px; width: 100%; justify-content: center;" id="job-action-block">
-                <button class="btn" style="border-color: #ff4b4b; color: #ff4b4b; width: 120px;" onclick="closeJob()">Назад</button>
-                <button class="btn" id="leave-casino-btn" style="border-color: #ffd700; color: #ffd700; display: none;" onclick="triggerEnding1()">Залишити казино 🚪</button>
+                <button class="btn" style="border-color: #ff4b4b; color: #ff4b4b; width: 120px; padding: 10px;" onclick="closeJob()">Назад</button>
+                <button class="btn" id="leave-casino-btn" style="border-color: #ffd700; color: #ffd700; display: none; padding: 10px;" onclick="triggerEnding1()">Залишити казино 🚪</button>
             </div>
         </div>
     </div>
 
     <div id="shop-screen">
         <h1 id="shop-header-title" style="color: #ffd700; margin-bottom: 10px; font-size: 24px;">МАГАЗИН КОТА</h1>
-        <div class="status-text" id="shop-balance" style="color: #4bff4b;">Баланс: 200$</div>
+        <div class="status-text" id="shop-balance" style="color: #4bff4b; margin-bottom: 15px;">Баланс: 200$</div>
         
         <div class="shop-container">
             <div class="shop-items-list" id="shop-items-container"></div>
@@ -228,7 +240,7 @@
                 <div class="cat-dialog" id="cat-speech">Вітаю у своєму магазинчику!</div>
             </div>
         </div>
-        <button class="btn" style="border-color: #ff4b4b; color: #ff4b4b; margin-top: 20px; width: 240px; max-width: 80vw;" onclick="closeShop()">Назад</button>
+        <button class="btn" style="border-color: #ff4b4b; color: #ff4b4b; margin-top: 20px; width: 240px; max-width: 80vw; padding: 12px;" onclick="closeShop()">Назад</button>
     </div>
 
     <div id="boss-screen">
@@ -340,7 +352,7 @@
 
         function playSound(file) {
             let sfx = new Audio(`sounds/${file}`); sfx.volume = 0.5;
-            sfx.play().catch(e => console.log("Аудіо заблоковано політикою браузера"));
+            sfx.play().catch(e => console.log("Аудіо заблоковано"));
         }
 
         function playMusic(file) {
@@ -502,7 +514,7 @@
 
             if (triggers["HAHAHA"]) {
                 if (!is_null_mode && shop_items["light_discord"]["count"] > 0) {
-                    shop_items["light_discord"]["count"]--; game_status = "Кіт хотів заскамити Вас, проте злякався Вашого діскорду";
+                    shop_items["light_discord"]["count"]--; game_status = "Кіт хотів заскамити Вас, проте злякався Вашої діскорд теми";
                 } else {
                     playSound('WAHAHAHA.mp3'); balance = Math.ceil(balance / 2);
                     game_status = `Причина не вказана. Кіт ХАХАХА заскамив Вас! Знято половину балансу. Залишилось: ${balance}$`;
@@ -659,7 +671,7 @@
 
         function getCatSpeech(key) {
             if (is_null_mode) {
-                const null_quotes = { "authority": "ти дійсно думаєш що заслуговуєш на це?", "apple_juice": "тобі немає для кого це використати тут...", "talisman": "Удача сьогодні не на твоїй стороне", "light_discord": "Я не збираюсь облегшувати тобі життя", "pasta": "Забув замовити на сьогодні пармезан, тому ні." };
+                const null_quotes = { "authority": "ти дійсно думаєш що заслуговуєш на це?", "apple_juice": "тобі немає для кого це використати тут...", "talisman": "Удача сьогодні не на твоїй стороні", "light_discord": "Я не збираюсь полегшувати тобі життя", "pasta": "Забув замовити на сьогодні пармезан, тому ні." };
                 document.getElementById("cat-speech").innerText = null_quotes[key] || "Уходь."; return;
             }
             if (insufficient_funds_trigger) return;
@@ -673,7 +685,7 @@
             if (is_null_mode) { document.getElementById("cat-speech").innerText = "Тобі більше нічого не допоможе..."; return; }
             let currentCost = shop_items[key].multi ? (key === "authority" ? authority_levels[shop_items[key].level] : talisman_levels[shop_items[key].level]) : shop_items[key].cost;
             if (currentCost === undefined || shop_items[key].level >= shop_items[key].max_level) return;
-            if (balance < currentCost) { insufficient_funds_trigger = true; document.getElementById("cat-speech").innerText = "Я ж бачу що в тебе немає грошей! Кого ти дуриш?"; playSound('cat_angry.wav'); return; }
+            if (balance < currentCost) { insufficient_funds_trigger = true; document.getElementById("cat-speech").innerText = "Я ж бачу що в тебя немає грошей! Кого ти дуриш?"; playSound('cat_angry.wav'); return; }
             insufficient_funds_trigger = false; balance -= currentCost;
             if (shop_items[key].multi) shop_items[key].level++; else shop_items[key].count++;
             playSound('money.mp3'); renderShop(); getCatSpeech(key); updateUI(); 
@@ -747,8 +759,8 @@
                     speechBubble.style.display = "flex";
 
                     animateTextTimeline(speechBubble, [
-                        { start: 0, end: 3, text: "Ти справді думав так легко перемогти мені?" },
-                        { start: 3, end: 5, text: "Я здатен підкорювати континети" },
+                        { start: 0, end: 3, text: "Ти справді думав так легко перемогти мене?" },
+                        { start: 3, end: 5, text: "Я здатен підкорювати континенти" },
                         { start: 7, end: 11, text: "Зараз ти пізнаєш мій терор", isEpic: true }
                     ], () => {
                         setTimeout(() => {
@@ -799,7 +811,6 @@
                 
                 let elapsedSeconds = (Date.now() - truePhaseStartTime) / 1000 + 20; 
 
-                // Атака 1: 00:23 - 00:33 (Модифіковані швидкі бомби)
                 if (elapsedSeconds >= 23 && elapsedSeconds <= 33) {
                     if (Date.now() - lastBombSpawn >= 1000) { 
                         spawnTruePhaseBomb();
@@ -807,7 +818,6 @@
                     }
                 }
 
-                // Атака 2: 00:34 - 00:44 (Кулі "+" або "X" з країв карти)
                 if (elapsedSeconds >= 34 && elapsedSeconds <= 44) {
                     if (Date.now() - lastPatternSpawn >= 1200) {
                         spawnTruePatternAttack();
@@ -815,7 +825,6 @@
                     }
                 }
 
-                // Кінець демо: 00:45+
                 if (elapsedSeconds >= 45) {
                     clearInterval(truePhaseAttackInterval);
                     bulletsList.forEach(b => b.el.remove()); bulletsList = [];
