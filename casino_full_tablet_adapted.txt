@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title id="game-title">🎰 Моє Кастомне Казино 🎰</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* ОСНОВНИЙ КОНТЕЙНЕР ГРИ */
+        #game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 15px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        #balance-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4bff4b;
+            margin: 10px 0;
+            text-shadow: 0 0 5px rgba(75, 255, 75, 0.3);
+        }
+
+        #status-bar {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 14px;
+            min-height: 40px;
+        }
+
+        /* СЛОТ-МАШИНА (СІТКА 3х3) */
+        #slots-wrapper {
+            background: radial-gradient(circle, #3a3a3a 0%, #222 100%);
+            border: 6px solid #ffd700;
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
+            margin: 20px auto;
+            max-width: 420px;
+        }
+
+        #slots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 10px;
+        }
+
+        .slot-cell {
+            background-color: #111;
+            border: 3px solid #555;
+            border-radius: 10px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .slot-cell.spinning {
+            border-color: #ff007f;
+            animation: slotPulse 0.1s infinite alternate;
+        }
+
+        .slot-cell img {
+            width: 75px;
+            height: 75px;
+            object-fit: contain;
+        }
+
+        @keyframes slotPulse {
+            from { background-color: #111; }
+            to { background-color: #251020; }
+        }
+
+        /* КНОПКИ */
+        .btn {
+            background: linear-gradient(180deg, #ffd700 0%, #b8860b 100%);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            transition: transform 0.1s, filter 0.2s;
+            margin: 5px;
+            width: 80%;
+            max-width: 250px;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        .btn-secondary {
+            background: linear-gradient(180deg, #555 0%, #333 100%);
+            color: #fff;
+            border: 1px solid #666;
+        }
+        .btn-danger {
+            background: linear-gradient(180deg, #ff4b4b 0%, #b30000 100%);
+            color: #fff;
+        }
+
+        /* НАВІГАЦІЯ ТА ДОДАТКОВІ ДІЇ */
+        #nav-menu {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        #nav-menu .btn {
+            font-size: 14px;
+            padding: 8px 16px;
+            width: auto;
+        }
+
+        #side-actions {
+            margin-top: 15px;
+            visibility: hidden;
+        }
+
+        /* ЕКРАНИ-ОКНА (ПОВНОЕКРАННІ ЗАГЛУШКИ) */
+        .screen-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(10, 10, 10, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .screen-header {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* МАГАЗИН */
+        #shop-content {
+            width: 100%;
+            max-width: 600px;
+        }
+        #cat-speech-bubble {
+            background-color: #222;
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            text-align: left;
+        }
+        #cat-speech-bubble img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 15px;
+            background-color: #333;
+        }
+        #cat-speech {
+            font-size: 14px;
+            color: #ddd;
+        }
+        #shop-items-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .shop-item-card {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .shop-item-card:hover {
+            background-color: #333;
+        }
+
+        /* РОБОТА (ЧИСТИЛЬНИК) */
+        #work-interface {
+            width: 100%;
+            max-width: 640px;
+            text-align: center;
+        }
+        .work-zone {
+            width: 100%;
+            height: 300px;
+            background-color: #151515;
+            border: 3px dashed #555;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+        .poop {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            animation: spawnPop 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .poop img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        @keyframes spawnPop {
+            from { transform: translate(-50%, -50%) scale(0); }
+            to { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* БОСФАЙТ */
+        #boss-battle-layout {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #boss-visual-container {
+            width: 100%;
+            height: 200px;
+            background-color: #000;
+            border: 3px solid #ff4b4b;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        #boss-img-asset {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #boss-bg-gradient {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 200%;
+            background: linear-gradient(180deg, rgba(255,0,0,0.4) 0%, rgba(0,0,0,0) 50%, rgba(255,0,0,0.4) 100%);
+            display: none;
+            pointer-events: none;
+        }
+        #boss-speech-bubble {
+            position: absolute;
+            bottom: 10px; left: 10px; right: 10px;
+            background-color: rgba(0, 0, 0, 0.85);
+            border: 2px solid #ff0000;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 13px;
+            color: #fff;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            min-height: 45px;
+        }
+        .epic-word {
+            color: #ff0000;
+            font-weight: bold;
+            text-shadow: 0 0 8px #ff0000;
+            animation: shake 0.2s infinite;
+        }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-1deg); }
+            85% { transform: translate(-1px, -1px) rotate(1deg); }
+            100% { transform: translate(1px, -2px) rotate(0deg); }
+        }
+
+        #boss-area {
+            width: 300px;
+            height: 300px;
+            background-color: #050505;
+            border: 4px solid #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        #heart {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: #ff0000;
+            transform: translate(-50%, -50%) rotate(45deg);
+            box-shadow: 0 0 8px #ff0000;
+        }
+        #heart::before, #heart::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: #ff0000;
+            border-radius: 50%;
+        }
+        #heart::before { top: -8px; left: 0; }
+        #heart::after { left: -8px; top: 0; }
+
+        .boss-bullet {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            transform: translate(-50%, -50%);
+        }
+        .boss-bullet img { width: 100%; height: 100%; }
+
+        .boss-bomb {
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            transform: translate(-50%, -50%);
+        }
+        .boss-bomb img { width: 100%; height: 100%; }
+        .boss-bomb.blinking {
+            animation: bombBlink 0.15s infinite alternate;
+        }
+        @keyframes bombBlink {
+            from { filter: drop-shadow(0 0 2px red) invert(0); }
+            to { filter: drop-shadow(0 0 10px red) invert(0.5); }
+        }
+
+        .explosion-ring {
+            position: absolute;
+            border: 3px solid #ff4b4b;
+            border-radius: 50%;
+            background-color: rgba(255, 75, 75, 0.25);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        /* КЕРУВАННЯ НА БОСФАЙТІ */
+        #boss-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 5px;
+            width: 160px;
+            margin-top: 15px;
+        }
+        .control-btn {
+            background-color: #333;
+            border: 2px solid #666;
+            color: #fff;
+            border-radius: 8px;
+            height: 45px;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .control-btn:active { background-color: #555; }
+
+        #rpg-choice-container {
+            display: none;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        #demo-thanks-text {
+            display: none;
+            color: #ffd700;
+            font-size: 22px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255,215,0,0.8);
+            margin-top: 15px;
+            animation: shake 0.3s infinite;
+        }
+
+        /* СКРІМЕРИ ТА ОВЕРЛЕЇ СТАТУСІВ */
+        #screamer-screen { background-color: #000; z-index: 9999; }
+        #screamer-screen img { max-width: 100%; max-height: 80vh; object-fit: contain; }
+        #screamer-banner { font-size: 32px; color: red; font-weight: bold; margin-top: 20px; text-shadow: 0 0 15px black; }
+
+        #error-overlay { background-color: rgba(0,0,139,0.9); z-index: 5000; font-family: monospace; text-align: left; align-items: flex-start; padding: 40px; }
+        #loading-overlay { background-color: #000; z-index: 6000; }
+        #loader-bar { width: 80%; max-width: 400px; height: 25px; border: 2px solid #ff0000; border-radius: 5px; margin-top: 20px; overflow: hidden; background:#111; }
+        #loader-progress { width: 0%; height: 100%; background-color: #ff0000; transition: width 0.05s linear; }
+
+        /* ==================================================== */
+        /* АДАПТИВ ТА ОПТИМІЗАЦІЯ ДЛЯ ПЛАНШЕТІВ ТА ШИРОКИХ ЕКРАНІВ */
+        /* ==================================================== */
+        @media screen and (min-aspect-ratio: 13/9) and (min-width: 768px) {
+            #game-container {
+                max-width: 1100px;
+                display: block;
+                padding: 20px;
+            }
+            
+            h1 { font-size: 36px; }
+            #balance-display { font-size: 32px; }
+
+            /* Збільшення барабанів */
+            #slots-wrapper {
+                max-width: 520px;
+                transform: scale(1.05);
+                margin: 25px auto;
+            }
+            .slot-cell { height: 115px; }
+            .slot-cell img { width: 95px; height: 95px; }
+
+            .btn { max-width: 300px; font-size: 20px; padding: 14px 28px; }
+
+            /* Магазин у дві колонки */
+            #shop-content { max-width: 900px; }
+            #shop-items-container {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                grid-gap: 15px;
+            }
+            /* Фіксація кота-продавця при скролі */
+            #cat-speech-bubble {
+                position: sticky;
+                top: 20px;
+                z-index: 10;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            }
+
+            /* Робоча зона чистильника на 75% ширини */
+            #work-interface { max-width: 90vw; }
+            .work-zone {
+                width: 75vw;
+                height: 55vh;
+                margin: 20px auto;
+            }
+
+            /* Перебудова макету босфайту на аркадний стиль */
+            #boss-battle-layout {
+                max-width: 950px;
+                display: grid;
+                grid-template-columns: 1fr 320px;
+                grid-gap: 30px;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* Портрет боса ліворуч, панель керування інтегрується */
+            #boss-visual-container {
+                grid-column: 1;
+                height: 350px;
+                margin-bottom: 0;
+            }
+            #boss-area {
+                grid-column: 2;
+                grid-row: 1 / span 2;
+                width: 320px;
+                height: 320px;
+                margin: 0 auto;
+            }
+            
+            #boss-controls {
+                grid-column: 1;
+                margin: 15px auto 0 auto;
+                width: 210px;
+                grid-gap: 8px;
+            }
+            .control-btn { height: 55px; font-size: 24px; }
+
+            /* Кнопки вибору дій RPG зміщуються в кут */
+            #rpg-choice-container {
+                grid-column: 1;
+                justify-content: center;
+                margin-top: 10px;
+            }
+
+            #boss-header-info {
+                grid-column: 1 / span 2;
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+                max-width: 700px;
+                margin: 0 auto 15px auto;
+            }
+            #boss-hp, #boss-timer { font-size: 26px !important; margin: 0 !important; }
+            
+            #demo-thanks-text {
+                grid-column: 1 / span 2;
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ГОЛОВНИЙ ЕКРАН КАЗИНО -->
+    <div id="game-container">
+        <h1 id="main-title">🎰 СУПЕР КАЗИНО 🎰</h1>
+        <div id="balance-display">Баланс: 100$</div>
+        
+        <div id="status-bar">
+            <div id="game-status">Натисніть SPACE або Кликніть, щоб крутити!</div>
+        </div>
+
+        <div id="slots-wrapper">
+            <div id="slots">
+                <!-- Сітка 3х3 для ігрових автоматів -->
+                <div class="slot-cell" id="slot-0"><img src="images/seven.png"></div>
+                <div class="slot-cell" id="slot-1"><img src="images/cherry.png"></div>
+                <div class="slot-cell" id="slot-2"><img src="images/seven.png"></div>
+                <div class="slot-cell" id="slot-3"><img src="images/banana.png"></div>
+                <div class="slot-cell" id="slot-4"><img src="images/seven.png"></div>
+                <div class="slot-cell" id="slot-5"><img src="images/cherry.png"></div>
+                <div class="slot-cell" id="slot-6"><img src="images/seven.png"></div>
+                <div class="slot-cell" id="slot-7"><img src="images/seven.png"></div>
+                <div class="slot-cell" id="slot-8"><img src="images/diamond.png"></div>
+            </div>
+        </div>
+
+        <button class="btn" id="spin-btn" onclick="spinReels()">ОБЕРТАТИ (10$)</button>
+
+        <div id="nav-menu">
+            <button class="btn btn-secondary" onclick="openShop()">🏪 Магазин Кота</button>
+            <button class="btn btn-secondary" onclick="openJob()">🧹 Робота (Чистильник)</button>
+            <button class="btn btn-danger" onclick="startBossFight()">👹 Битва з Босом</button>
+        </div>
+
+        <div id="side-actions">
+            <button class="btn btn-secondary" id="update-sys-btn" onclick="triggerSystemError()">⚙ Інсталювати оновлення системи</button>
+            <button class="btn btn-danger" id="leave-casino-btn" style="display:none;" onclick="triggerEnding1()">🚪 Назавжди покинути казино</button>
+        </div>
+    </div>
+
+    <!-- ЕКРАН МАГАЗИНУ -->
+    <div class="screen-overlay" id="shop-screen">
+        <div class="screen-header">
+            <h2 id="shop-header-title" style="margin:0; color:#ffd700;">🏪 ЛАВКА ЧОРНОГО КОТА</h2>
+            <button class="btn btn-secondary" style="width:auto; margin:0; padding:5px 15px;" onclick="closeShop()">X</button>
+        </div>
+        <div id="shop-content">
+            <div id="cat-speech-bubble">
+                <img src="images/cat.png" id="cat-img-element" alt="Кіт">
+                <div id="cat-speech">Мяу! Купи щось, не стій просто так. В мене є чудові товари!</div>
+            </div>
+            <div id="shop-items-container">
+                <!-- Товари генеруються динамічно через JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ЕКРАН РОБОТИ -->
+    <div class="screen-overlay" id="job-screen">
+        <div class="screen-header">
+            <h2 style="margin:0; color:#4bff4b;">🧹 СИМУЛЯТОР ЧИСТИЛЬНИКА</h2>
+            <button class="btn btn-secondary" style="width:auto; margin:0; padding:5px 15px;" onclick="closeJob()">X</button>
+        </div>
+        <div id="work-interface">
+            <div id="job-stats" style="font-size:18px; margin-bottom:5px;">Баланс: 100$ | Прибрано: 0</div>
+            <div id="job-progress" style="font-size:14px; color:#aaa; margin-bottom:10px;">Прогрес до зарплати: 0/10 (5$)</div>
+            <div class="work-zone" id="work-zone">
+                <!-- Какашки спавняться тут -->
+            </div>
+            <p style="font-size:13px; color:#777; margin-top:10px;">Клікай або тапай по бруду, щоб прибрати його та заробити гроші.</p>
+        </div>
+    </div>
+
+    <!-- ЕКРАН БОСФАЙТУ -->
+    <div class="screen-overlay" id="boss-screen">
+        <div class="screen-header" style="max-width:950px;">
+            <h2 style="margin:0; color:#ff4b4b;">👹 ФІНАЛЬНИЙ БОСФАЙТ</h2>
+            <button class="btn btn-secondary" id="boss-escape-action" style="width:auto; margin:0; padding:5px 15px;" onclick="escapeBossFight()">Втекти</button>
+        </div>
+        
+        <div id="boss-battle-layout">
+            <div id="boss-header-info" style="width:100%;">
+                <div id="boss-hp" style="font-size:22px; font-weight:bold; color:#4bff4b; margin-bottom:5px;">HP: 100</div>
+                <div id="boss-timer" style="font-size:18px; color:#ff4b4b; margin-bottom:10px;">Час: 30</div>
+            </div>
+
+            <div id="boss-visual-container">
+                <img src="images/theboss.jpg" id="boss-img-asset">
+                <div id="boss-bg-gradient"></div>
+                <div id="boss-speech-bubble"></div>
+            </div>
+
+            <div id="boss-area" id="boss-battle-box">
+                <div id="heart"></div>
+            </div>
+
+            <div id="boss-controls">
+                <div class="control-btn" id="btn-blank1" style="visibility:hidden;"></div>
+                <div class="control-btn" id="btn-up">▲</div>
+                <div class="control-btn" id="btn-blank2" style="visibility:hidden;"></div>
+                <div class="control-btn" id="btn-left">◀</div>
+                <div class="control-btn" id="btn-down">▼</div>
+                <div class="control-btn" id="btn-right">▶</div>
+            </div>
+
+            <div id="rpg-choice-container">
+                <button class="btn btn-danger" onclick="handleRpgChoice('fight')">БИТИСЯ</button>
+                <button class="btn" style="background:linear-gradient(180deg, #4bff4b 0%, #008000 100%); color:#fff;" onclick="handleRpgChoice('mercy')">ПОМИЛУВАННЯ</button>
+            </div>
+
+            <div id="demo-thanks-text">ДЯКУЮ ЗА ГРУ В ДЕМО-ВЕРСІЮ!</div>
+        </div>
+    </div>
+
+    <!-- ЕКРАН СКРІМЕРА ЛУЇДЖІ -->
+    <div class="screen-overlay" id="screamer-screen">
+        <div id="screamer-banner">!!!LUIGI JUMPSCARE!!!</div>
+        <img src="images/luigi_screamer.png" alt="LUIGI">
+    </div>
+
+    <!-- ЕКРАН СИСТЕМНОЇ ПОМИЛКИ -->
+    <div class="screen-overlay" id="error-overlay">
+        <h1 style="color:#ff4b4b; font-size:24px;">SYSTEM_FATAL_ERROR: CODE_0x666</h1>
+        <p>A critical exception has occurred in the Casino Kernel Memory Registry.</p>
+        <p>The system stability is compromised due to illegal wealth accumulation loop detected.</p>
+        <p>To fix this, please initialize the mandatory protocol update below.</p>
+        <br>
+        <button class="btn btn-danger" style="max-width:320px;" onclick="acceptUpdate()">INITIALIZE RECOVERY UPDATE</button>
+        <button class="btn btn-secondary" style="max-width:180px; font-size:12px; padding:5px;" onclick="closeErrorWindow()">Ignore (Not recommended)</button>
+    </div>
+
+    <!-- ЕКРАН ЗАВАНТАЖЕННЯ NULL MODE -->
+    <div class="screen-overlay" id="loading-overlay">
+        <h2 style="color:#ff0000; letter-spacing: 3px;">INITIALIZING CORRUPTION PROTOCOL...</h2>
+        <div id="loader-bar">
+            <div id="loader-progress"></div>
+        </div>
+        <div id="loading-percentage" style="margin-top:10px; font-size:18px; color:#ff0000; font-family:monospace;">0%</div>
+    </div>
+
+    <!-- ЕКРАН КІНЦІВКИ 1 -->
+    <div class="screen-overlay" id="ending1-screen">
+        <h1 style="color:#ffd700; font-size:36px; margin-bottom:20px;">КІНЦІВКА 1: Вільна Людина</h1>
+        <p style="font-size:18px; max-width:600px; line-height:1.6;">Ви вичистили тисячу какашок, заробили чесну репутацію та знайшли в собі сили назавжди розвернутися і піти з цього проклятого закладу. Ви зберегли свій розум, свободу та душу. Вітаємо!</p>
+        <br>
+        <button class="btn" onclick="location.reload()">ГРАТИ ЗНОВУ</button>
+    </div>
+
+    <!-- ЛОГІКА ТА СКРИПТИ ГРИ -->
+    <script>
+        // ГЛОБАЛЬНІ ЗМІННІ СТАНУ ГРИ
+        let balance = 100;
+        let game_status = "Натисніть SPACE або Кликніть, щоб крутити!";
+        let luigi_paralysis_turns = 0;
+        let is_shop_open = false;
+        let is_job_open = false;
+        let is_null_mode = false;
+        let cleaned_poops_count = 0;
+        let insufficient_funds_trigger = false;
+
+        // Дані для магазину
+        let shop_items = {
+            "authority": { name: "Авторитет", level: 0, max_level: 6, multi: true, desc: "Збільшує множник виграшу в казино.", cat_joke: "О, авторитет? Хочеш стати босом цього підвалу?", cost: 0 },
+            "apple_juice": { name: "Яблучний сік", count: 0, multi: false, desc: "Просто смачний сік. Можливо, колись знадобиться.", cat_joke: "Сік? Ну, вітаміни це добре, мяу.", cost: 15 },
+            "talisman": { name: "Талісман удачі", level: 0, max_level: 5, multi: true, desc: "Трохи піднімає базовий шанс на хороші комбінації.", cat_joke: "Талісман? Мої вуса - найкращий талісман, але бери цей.", cost: 0 },
+            "light_discord": { name: "Світла тема Discord", count: 0, multi: false, desc: "ОКОДРОБІЛЬНИЙАРТЕФАКТ. Не купуй це.", cat_joke: "ЩО?! Світла тема? Ти божевільний, вона випалить нам очі!", cost: 50 },
+            "pasta": { name: "Паста з пармезаном", count: 0, multi: false, desc: "Ситна вечеря від шефа. Відновлює моральні сили.", cat_joke: "Ммм, паста... Поділишся шматочком сиру?", cost: 30 }
+        };
+
+        const authority_levels = [40, 90, 180, 350, 600, 1200];
+        const talisman_levels = [25, 65, 140, 280, 550];
+        const win_chances_history = ["35%", "40%", "45%", "52%", "60%", "75%"];
+        const authority_multi_history = ["x1.0", "x1.25", "x1.5", "x1.75", "x2.0", "x2.5", "x3.0"];
+
+        // Списки зображень для слотів
+        const slot_images = ["seven.png", "cherry.png", "banana.png", "diamond.png", "bar.png"];
+
+        // ФУНКЦІЇ АУДІО (Заглушки з консоллю)
+        function playSound(src) { console.log("PLAY SOUND: " + src); }
+        function playMusic(src) { console.log("START MUSIC LOOP: " + src); }
+        function stopMusic() { console.log("STOP MUSIC"); }
+
+        function isMobileDevice() {
+            return (window.innerHeight > window.innerWidth) || (window.innerWidth < 768);
+        }
+
+        function checkAnyAction() {
+            if (luigi_paralysis_turns > 0) {
+                game_status = `Ви паралізовані скрімером Луїджі! Залишилось ходів: ${luigi_paralysis_turns}`;
+                updateUI();
+                return true;
+            }
+            return false;
+        }
+
+        function updateUI() {
+            document.getElementById("balance-display").innerText = `Баланс: ${balance}$`;
+            document.getElementById("game-status").innerText = game_status;
+            document.getElementById("job-stats").innerText = `Баланс: ${balance}$ | Прибрано: ${cleaned_poops_count}`;
+            
+            if (balance >= 500 && !is_null_mode) {
+                document.getElementById("side-actions").style.visibility = "visible";
+            }
+        }
+
+        // МЕХАНІКА ОБЕРТАННЯ БАРАБАНІВ (СПІН)
+        function spinReels() {
+            if (checkAnyAction()) return;
+            if (balance < 10) { game_status = "Недостатньо грошей для обертання! (Треба 10$) Іди працюй!"; updateUI(); return; }
+            
+            balance -= 10;
+            game_status = "Барабани крутяться...";
+            updateUI();
+            playSound('spin.mp3');
+
+            if (luigi_paralysis_turns > 0) luigi_paralysis_turns--;
+
+            // Ефект крутіння через класи CSS
+            for (let i = 0; i < 9; i++) {
+                document.getElementById(`slot-${i}`).classList.add("spinning");
+            }
+
+            setTimeout(() => {
+                let results = [];
+                // Якщо активована світла тема діскорду - шанс зловити Луїджі 65%
+                let isDiscordLightActive = shop_items["light_discord"].count > 0;
+                let screamerChance = isDiscordLightActive ? 0.65 : 0.04;
+
+                if (Math.random() < screamerChance && !is_null_mode) {
+                    // Скрімер Луїджі!
+                    for (let i = 0; i < 9; i++) { document.getElementById(`slot-${i}`).classList.remove("spinning"); }
+                    let penalty = isDiscordLightActive ? 50 : 15;
+                    triggerLuigiScreamer(penalty);
+                    return;
+                }
+
+                // Генерація звичайних результатів
+                for (let i = 0; i < 9; i++) {
+                    let cell = document.getElementById(`slot-${i}`);
+                    cell.classList.remove("spinning");
+                    
+                    let randImg = is_null_mode ? "null.png" : slot_images[Math.floor(Math.random() * slot_images.length)];
+                    cell.innerHTML = `<img src="images/${randImg}">`;
+                    results.push(randImg);
+                }
+
+                if (is_null_mode) {
+                    game_status = "✖ КАЗИНО ЗАВЖДИ ВИГРАЄ ✖"; updateUI(); return;
+                }
+
+                // Розрахунок перемог (перевірка рядків)
+                let winCount = 0;
+                let rows = [[0,1,2], [3,4,5], [6,7,8]];
+                
+                rows.forEach(row => {
+                    if (results[row[0]] === results[row[1]] && results[row[1]] === results[row[2]]) {
+                        winCount++;
+                    }
+                });
+
+                if (winCount > 0) {
+                    let authLvl = shop_items["authority"].level;
+                    let multiplier = authLvl === 6 ? 3.0 : 1.0 + (authLvl * 0.25);
+                    let basePrize = winCount * 35;
+                    let totalPrize = Math.floor(basePrize * multiplier);
+                    balance += totalPrize;
+                    game_status = `🎉 ВИГРАШ! Зібрано ліній: ${winCount}. +${totalPrize}$ (Множник ${multiplier}x)`;
+                    playSound('win.mp3');
+                } else {
+                    game_status = "Програш. Спробуйте ще раз!";
+                }
+                updateUI();
+
+            }, 1000);
+        }
+
+        function triggerLuigiScreamer(penalty) {
+            balance -= penalty; luigi_paralysis_turns = 3;
+            document.getElementById("screamer-banner").innerText = penalty > 0 ? `!!!LUIGI JUMPSCARE!!! (-${penalty}$ за тему)` : "!!!LUIGI JUMPSCARE!!!";
+            document.getElementById("screamer-screen").style.display = "flex"; playSound('luigi.mp3');
+            setTimeout(() => { document.getElementById("screamer-screen").style.display = "none"; game_status = "Натисніть SPACE або Кликніть, щоб крутити!"; updateUI(); }, 1250);
+        }
+
+        function triggerSystemError() { playSound('error.mp3'); document.getElementById("error-overlay").style.display = "flex"; }
+        function closeErrorWindow() { document.getElementById("error-overlay").style.display = "none"; updateUI(); }
+
+        function acceptUpdate() {
+            document.getElementById("error-overlay").style.display = "none"; document.getElementById("loading-overlay").style.display = "flex";
+            let progress = 0; let randomTime = Math.random() * (10000 - 5000) + 5000; let stepTime = randomTime / 100;
+            let loadInterval = setInterval(() => {
+                progress++; document.getElementById("loader-progress").style.width = progress + "%"; document.getElementById("loading-percentage").innerText = progress + "%";
+                if (progress >= 100) { clearInterval(loadInterval); activateNullMode(); }
+            }, stepTime);
+        }
+
+        function activateNullMode() {
+            is_null_mode = true; balance = 666;
+            document.getElementById("loading-overlay").style.display = "none";
+            document.getElementById("game-title").innerText = "Казино Null ✖";
+            document.getElementById("main-title").innerText = "CASINO NULL"; document.getElementById("main-title").style.color = "#ff0000"; document.getElementById("main-title").style.textShadow = "0 0 10px #ff0000";
+            document.getElementById("shop-header-title").innerText = "МАГАЗИН NULL"; document.getElementById("shop-header-title").style.color = "#ff0000";
+            for (let i = 0; i < 9; i++) { document.getElementById("slots").children[i].innerHTML = `<img src="images/null.png">`; }
+            document.getElementById("cat-img-element").src = "images/null.png"; document.getElementById("cat-speech").innerText = "Ти сам у цьому винен. Тобі казали зупинитись.";
+            document.getElementById("side-actions").style.visibility = "visible";
+            game_status = "Ласкаво просимо до твоєї нової реальності."; updateUI();
+        }
+
+        function triggerEnding1() { if(is_null_mode) return; is_job_open = false; document.getElementById("job-screen").style.display = "none"; stopMusic(); document.getElementById("ending1-screen").style.display = "flex"; }
+
+        function openJob() { 
+            if (checkAnyAction()) return;
+            is_job_open = true; document.getElementById("job-screen").style.display = "flex"; playMusic('job.mp3');
+            let width = window.innerWidth * 0.8; let height = window.innerHeight * 0.5;
+            if (isMobileDevice()) spawnSpecificPoops(3, width, height); else spawnSpecificPoops(5, width, height); 
+        }
+        function closeJob() { is_job_open = false; document.getElementById("job-screen").style.display = "none"; stopMusic(); updateUI(); }
+        
+        function spawnSpecificPoops(amount, maxW = 640, maxH = 300) {
+            const zone = document.getElementById("work-zone"); let zW = zone.clientWidth; let zH = zone.clientHeight;
+            for(let i=0; i<amount; i++) {
+                let p = document.createElement("div"); p.className = "poop"; p.innerHTML = `<img src="images/poop.png">`;
+                p.style.left = (Math.random() * (zW - 60) + 30) + "px"; p.style.top = (Math.random() * (zH - 60) + 30) + "px";
+                p.onclick = (e) => { e.stopPropagation(); cleanPoop(p); }; p.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); cleanPoop(p); };
+                zone.appendChild(p);
+            }
+        }
+
+        function cleanPoop(el) {
+            el.remove(); cleaned_poops_count++; playSound('fart.mp3'); 
+            if (cleaned_poops_count % 10 === 0) { balance += 5; playSound('money.mp3'); }
+            document.getElementById("job-progress").innerText = `Прогрес до зарплати: ${cleaned_poops_count % 10}/10 (5$)`;
+            if (cleaned_poops_count >= 1000 && !is_null_mode) { document.getElementById("leave-casino-btn").style.display = "block"; }
+            document.getElementById("job-stats").innerText = `Баланс: ${balance}$ | Прибрано: ${cleaned_poops_count}`;
+            let remaining = document.querySelectorAll('.poop').length; let zone = document.getElementById("work-zone");
+            if (isMobileDevice() && remaining === 0) spawnSpecificPoops(2, zone.clientWidth, zone.clientHeight);
+            else if (!isMobileDevice() && remaining === 2) spawnSpecificPoops(4, zone.clientWidth, zone.clientHeight);
+        }
+
+        function openShop() { if (checkAnyAction()) return; is_shop_open = true; insufficient_funds_trigger = false; document.getElementById("shop-screen").style.display = "flex"; playMusic('catshop.mp3'); renderShop(); }
+        function closeShop() { is_shop_open = false; document.getElementById("shop-screen").style.display = "none"; stopMusic(); updateUI(); }
+        
+        function renderShop() {
+            const container = document.getElementById("shop-items-container"); container.innerHTML = "";
+            for(let key in shop_items) {
+                let item = shop_items[key];
+                let levelNameStr = item.multi ? `(Рівень ${item.level})` : `(x${item.count})`;
+                let costStr = item.multi ? (key === "authority" ? authority_levels[item.level] : talisman_levels[item.level]) + "$" : item.cost + "$";
+                if (is_null_mode) { levelNameStr = `(Рівень -∞)`; costStr = "-∞$"; } 
+                else if (item.multi && item.level >= item.max_level) { costStr = "МАКС"; }
+                
+                let card = document.createElement("div"); card.className = "shop-item-card";
+                card.innerHTML = `<div><b style="font-size: 18px;">${item.name} ${levelNameStr}</b><div class="effect-desc" style="color: #aaa; margin-top: 3px;">${item.desc}</div></div><span style="color: #ffd700; font-weight: bold; font-size: 18px;">${costStr}</span>`;
+                card.onmouseenter = () => { getCatSpeech(key); }; card.onclick = () => { buyItem(key); };
+                container.appendChild(card);
+            }
+        }
+
+        function getCatSpeech(key) {
+            if (is_null_mode) {
+                const null_quotes = { "authority": "ти дійсно думаєш що заслуговуєш на це?", "apple_juice": "тобі немає для кого це використати тут...", "talisman": "Удача сьогодні не на твоїй стороне", "light_discord": "Я не збираюсь облегшувати тобі життя", "pasta": "Забув замовити на сьогодні пармезан, тому ні." };
+                document.getElementById("cat-speech").innerText = null_quotes[key] || "Уходь."; return;
+            }
+            if (insufficient_funds_trigger) return;
+            let item = shop_items[key]; let extra = "";
+            if (key === "talisman" && item.level < item.max_level) { extra = `
+
+Шанс виграшу: ${win_chances_history[item.level]} -> ${win_chances_history[item.level + 1]}`; } 
+            else if (key === "authority" && item.level < item.max_level) { extra = `
+
+Mножник прибутку: ${authority_multi_history[item.level]} -> ${authority_multi_history[item.level + 1]}`; }
+            document.getElementById("cat-speech").innerText = item.cat_joke + extra;
+        }
+
+        function buyItem(key) {
+            if (is_null_mode) { document.getElementById("cat-speech").innerText = "Тобі більше нічого не допоможе..."; return; }
+            let currentCost = shop_items[key].multi ? (key === "authority" ? authority_levels[shop_items[key].level] : talisman_levels[shop_items[key].level]) : shop_items[key].cost;
+            if (currentCost === undefined || shop_items[key].level >= shop_items[key].max_level) return;
+            if (balance < currentCost) { insufficient_funds_trigger = true; document.getElementById("cat-speech").innerText = "Я ж бачу що в тебе немає грошей! Кого ти дуриш?"; playSound('cat_angry.wav'); return; }
+            insufficient_funds_trigger = false; balance -= currentCost;
+            if (shop_items[key].multi) shop_items[key].level++; else shop_items[key].count++;
+            playSound('money.mp3'); renderShop(); getCatSpeech(key); updateUI(); 
+        }
+
+        // --- БОСФАЙТ СИСТЕМА ---
+        let bossLoopInterval = null, bulletSpawnInterval = null, bombSpawnInterval = null;
+        let heart = { x: 150, y: 150, speed: 4 }, hp = 100, invincibleTimer = 0, bossTimeRemaining = 30;
+        let bulletsList = [], bombsList = [], explosionsList = [], keysPressed = {}, touchKeysPressed = {}; 
+        let gradientDirection = 1, gradientPosition = 120;
+        let isTrueBossPhase = false; 
+
+        let truePhaseStartTime = 0;
+        let truePhaseAttackInterval = null;
+
+        function startBossFight() {
+            game_status = "БОСФАЙТ! Битва розпочалась!"; updateUI(); playMusic('fight.mp3');
+            document.getElementById("boss-screen").style.display = "flex";
+            document.getElementById("boss-controls").style.display = "grid"; 
+            document.getElementById("boss-escape-action").style.display = "block";
+            document.getElementById("rpg-choice-container").style.display = "none";
+            document.getElementById("boss-speech-bubble").style.display = "none";
+            document.getElementById("demo-thanks-text").style.display = "none";
+            
+            document.getElementById("boss-bg-gradient").style.display = "none";
+            document.getElementById("boss-img-asset").outerHTML = `<img src="images/theboss.jpg" id="boss-img-asset">`;
+            
+            hp = 100; bossTimeRemaining = 30; bulletsList = []; bombsList = []; explosionsList = []; heart.x = 150; heart.y = 150;
+            isTrueBossPhase = false;
+            if (truePhaseAttackInterval) clearInterval(truePhaseAttackInterval);
+
+            let timerInterval = setInterval(() => {
+                if (document.getElementById("boss-screen").style.display !== "flex" || isTrueBossPhase) { clearInterval(timerInterval); return; }
+                bossTimeRemaining--; document.getElementById("boss-timer").innerText = `Час: ${bossTimeRemaining}`;
+                if (bossTimeRemaining <= 0) { clearInterval(timerInterval); triggerRpgChoicePhase(); }
+            }, 1000);
+            
+            bulletSpawnInterval = setInterval(spawnBossBullet, 450); 
+            bombSpawnInterval = setInterval(spawnBossBomb, 3000);
+            bossLoopInterval = setInterval(bossUpdate, 1000 / 60);
+        }
+
+        function triggerRpgChoicePhase() {
+            stopMusic();
+            clearInterval(bulletSpawnInterval); clearInterval(bombSpawnInterval);
+            bulletsList.forEach(b => b.el.remove()); bulletsList = [];
+            bombsList.forEach(b => b.el.remove()); bombsList = [];
+            explosionsList.forEach(e => e.el.remove()); explosionsList = [];
+            
+            document.getElementById("boss-escape-action").style.display = "none";
+            document.getElementById("rpg-choice-container").style.display = "flex";
+            game_status = "Оберіть свою дію..."; updateUI();
+        }
+
+        function handleRpgChoice(choice) {
+            document.getElementById("rpg-choice-container").style.display = "none";
+            
+            if (choice === 'mercy') {
+                clearInterval(bossLoopInterval); document.getElementById("boss-screen").style.display = "none";
+                balance += 500; game_status = "Ви вчинили по доброму з Паном 1488, ось Вам репарації (+500$)"; updateUI();
+            } else if (choice === 'fight') {
+                isTrueBossPhase = true; game_status = "Монолог Пана 1488..."; updateUI();
+                document.getElementById("boss-img-asset").src = "images/bosswow.jpg";
+                playMusic('surrender.mp3'); 
+
+                setTimeout(() => {
+                    const container = document.getElementById("boss-visual-container");
+                    container.innerHTML = `<video id="boss-img-asset" autoplay style="width: 100%; height: 100%; object-fit: contain;"><source src="images/gotmad.mp4" type="video/mp4"></video>`;
+                    
+                    const speechBubble = document.getElementById("boss-speech-bubble");
+                    speechBubble.style.display = "flex";
+
+                    animateTextTimeline(speechBubble, [
+                        { start: 0, end: 3, text: "Ти справді думав так легко перемогти мені?" },
+                        { start: 3, end: 5, text: "Я здатен підкорювати континети" },
+                        { start: 7, end: 11, text: "Зараз ти пізнаєш мій терор", isEpic: true }
+                    ], () => {
+                        setTimeout(() => {
+                            speechBubble.style.display = "none";
+                            container.innerHTML = `<img src="images/madboss.jpg" id="boss-img-asset">`;
+                            
+                            document.getElementById("boss-bg-gradient").style.display = "block";
+                            startTrueMadFight();
+                        }, 2000); 
+                    });
+                }, 10000);
+            }
+        }
+
+        function animateTextTimeline(element, timeline, onComplete) {
+            let index = 0;
+            function runNext() {
+                if (index >= timeline.length) { onComplete(); return; }
+                let line = timeline[index];
+                element.innerHTML = line.isEpic ? `<span class="epic-word"></span>` : `<span></span>`;
+                let targetSpan = element.firstChild;
+                let chars = line.text.split(""); let charIndex = 0;
+                
+                let charInterval = setInterval(() => {
+                    if (charIndex < chars.length) { targetSpan.innerHTML += chars[charIndex]; charIndex++; } 
+                    else {
+                        clearInterval(charInterval);
+                        setTimeout(() => { index++; runNext(); }, (line.end - line.start) * 1000 - (chars.length * 40));
+                    }
+                }, 40);
+            }
+            runNext();
+        }
+
+        function startTrueMadFight() {
+            game_status = "ЦЕ СПРАВЖНІЙ ТЕРОР!"; 
+            hp = 100;
+            document.getElementById("boss-hp").innerText = `HP: ${hp}`;
+            document.getElementById("boss-timer").innerText = "Час: ???";
+            updateUI();
+
+            truePhaseStartTime = Date.now();
+            let lastBombSpawn = 0;
+            let lastPatternSpawn = 0;
+
+            truePhaseAttackInterval = setInterval(() => {
+                if (document.getElementById("boss-screen").style.display !== "flex") { clearInterval(truePhaseAttackInterval); return; }
+                
+                let elapsedSeconds = (Date.now() - truePhaseStartTime) / 1000 + 20; 
+
+                if (elapsedSeconds >= 23 && elapsedSeconds <= 33) {
+                    if (Date.now() - lastBombSpawn >= 1000) { 
+                        spawnTruePhaseBomb();
+                        lastBombSpawn = Date.now();
+                    }
+                }
+
+                if (elapsedSeconds >= 34 && elapsedSeconds <= 44) {
+                    if (Date.now() - lastPatternSpawn >= 1200) {
+                        spawnTruePatternAttack();
+                        lastPatternSpawn = Date.now();
+                    }
+                }
+
+                if (elapsedSeconds >= 45) {
+                    clearInterval(truePhaseAttackInterval);
+                    bulletsList.forEach(b => b.el.remove()); bulletsList = [];
+                    bombsList.forEach(b => b.el.remove()); bombsList = [];
+                    explosionsList.forEach(e => e.el.remove()); explosionsList = [];
+                    document.getElementById("demo-thanks-text").style.display = "flex";
+                    game_status = "Демо-версію завершено!"; updateUI();
+                }
+
+            }, 1000 / 30);
+        }
+
+        function spawnTruePhaseBomb() {
+            let el = document.createElement("div"); el.className = "boss-bomb"; el.innerHTML = `<img src="images/bomb.png">`;
+            document.getElementById("boss-area").appendChild(el);
+            bombsList.push({ el, x: heart.x, y: heart.y, spawnTime: Date.now(), isTrueBomb: true });
+        }
+
+        function spawnTruePatternAttack() {
+            let pattern = Math.random() < 0.5 ? 'plus' : 'cross';
+            let speed = 4.5; 
+
+            if (pattern === 'plus') {
+                bulletsList.push({ el: createBulletEl(), x: heart.x, y: -20, vx: 0, vy: speed });
+                bulletsList.push({ el: createBulletEl(), x: heart.x, y: 320, vx: 0, vy: -speed });
+                bulletsList.push({ el: createBulletEl(), x: -20, y: heart.y, vx: speed, vy: 0 });
+                bulletsList.push({ el: createBulletEl(), x: 320, y: heart.y, vx: -speed, vy: 0 });
+            } else {
+                let offset = 150;
+                bulletsList.push({ el: createBulletEl(), x: heart.x - offset, y: heart.y - offset, vx: speed, vy: speed });
+                bulletsList.push({ el: createBulletEl(), x: heart.x + offset, y: heart.y - offset, vx: -speed, vy: speed });
+                bulletsList.push({ el: createBulletEl(), x: heart.x - offset, y: heart.y + offset, vx: speed, vy: -speed });
+                bulletsList.push({ el: createBulletEl(), x: heart.x + offset, y: heart.y + offset, vx: -speed, vy: -speed });
+            }
+        }
+
+        function createBulletEl() {
+            let el = document.createElement("div"); el.className = "boss-bullet"; el.innerHTML = `<img src="images/bullet.png">`;
+            document.getElementById("boss-area").appendChild(el);
+            return el;
+        }
+
+        function escapeBossFight() {
+            clearInterval(bossLoopInterval); clearInterval(bulletSpawnInterval); clearInterval(bombSpawnInterval); 
+            if (truePhaseAttackInterval) clearInterval(truePhaseAttackInterval); stopMusic();
+            bulletsList.forEach(b => b.el.remove()); bombsList.forEach(b => b.el.remove()); explosionsList.forEach(e => e.el.remove());
+            document.getElementById("boss-screen").style.display = "none"; touchKeysPressed = {}; keysPressed = {}; game_status = "Ви успішно втекли з поля бою! (0$)"; updateUI();
+        }
+
+        function spawnBossBullet() {
+            const sides = ["top", "bottom", "left", "right"]; let side = sides[Math.floor(Math.random() * sides.length)];
+            let bx = 0, by = 0, vx = 0, vy = 0; let speedMod = 1.5;
+            if (side === "top") { bx = Math.random() * 300; by = -20; vx = 0; vy = Math.random() * speedMod + 2; }
+            else if (side === "bottom") { bx = Math.random() * 300; by = 320; vx = 0; vy = -(Math.random() * speedMod + 2); }
+            else if (side === "left") { bx = -20; by = Math.random() * 300; vx = Math.random() * speedMod + 2; vy = 0; }
+            else { bx = 320; by = Math.random() * 300; vx = -(Math.random() * speedMod + 2); vy = 0; }
+            let el = document.createElement("div"); el.className = "boss-bullet"; el.innerHTML = `<img src="images/bullet.png">`;
+            document.getElementById("boss-area").appendChild(el); bulletsList.push({ el, x: bx, y: by, vx, vy });
+        }
+
+        function spawnBossBomb() {
+            let el = document.createElement("div"); el.className = "boss-bomb"; el.innerHTML = `<img src="images/bomb.png">`;
+            document.getElementById("boss-area").appendChild(el); bombsList.push({ el, x: heart.x, y: heart.y, spawnTime: Date.now() });
+        }
+
+        function bossUpdate() {
+            if (isTrueBossPhase && document.getElementById("boss-bg-gradient").style.display === "block") {
+                if (gradientDirection === 1) {
+                    gradientPosition -= 0.3; 
+                    if (gradientPosition <= 50) { gradientDirection = -1; } 
+                } else if (gradientDirection === -1) {
+                    gradientPosition += 0.3; 
+                    if (gradientPosition >= 120) { gradientDirection = 1; } 
+                }
+                document.getElementById("boss-bg-gradient").style.transform = `translateY(${gradientPosition}%)`;
+            }
+
+            if (keysPressed["ArrowLeft"] || keysPressed["a"]) heart.x -= heart.speed; if (keysPressed["ArrowRight"] || keysPressed["d"]) heart.x += heart.speed;
+            if (keysPressed["ArrowUp"] || keysPressed["w"]) heart.y -= heart.speed; if (keysPressed["ArrowDown"] || keysPressed["s"]) heart.y += heart.speed;
+            if (touchKeysPressed["left"]) heart.x -= heart.speed; if (touchKeysPressed["right"]) heart.x += heart.speed;
+            if (touchKeysPressed["up"]) heart.y -= heart.speed; if (touchKeysPressed["down"]) heart.y += heart.speed;
+
+            if (heart.x < 10) heart.x = 10; if (heart.x > 290) heart.x = 290;
+            if (heart.y < 10) heart.y = 10; if (heart.y > 290) heart.y = 290;
+            const hEl = document.getElementById("heart"); hEl.style.left = heart.x + "px"; hEl.style.top = heart.y + "px";
+            let now = Date.now();
+
+            for(let i = bulletsList.length - 1; i >= 0; i--) {
+                let b = bulletsList[i]; b.x += b.vx; b.y += b.vy; b.el.style.left = b.x + "px"; b.el.style.top = b.y + "px";
+                if (Math.hypot(b.x - heart.x, b.y - heart.y) < 16 && now > invincibleTimer) {
+                    hp -= 10; invincibleTimer = now + 500; b.el.remove(); bulletsList.splice(i, 1); playSound('boss_hit.wav'); continue;
+                }
+                if (b.x < -60 || b.x > 360 || b.y < -60 || b.y > 360) { b.el.remove(); bulletsList.splice(i, 1); }
+            }
+
+            for(let i = bombsList.length - 1; i >= 0; i--) {
+                let b = bombsList[i]; let elapsed = now - b.spawnTime; b.el.style.left = b.x + "px"; b.el.style.top = b.y + "px";
+                
+                let flashTime = b.isTrueBomb ? 1000 : 1500;
+                let explodeTime = b.isTrueBomb ? 1400 : 2000;
+
+                if (elapsed > flashTime) b.el.classList.add("blinking");
+                if (elapsed >= explodeTime) {
+                    b.el.remove(); bombsList.splice(i, 1);
+                    let expEl = document.createElement("div"); expEl.className = "explosion-ring"; expEl.style.left = b.x + "px"; expEl.style.top = b.y + "px"; expEl.style.width = "0px"; expEl.style.height = "0px";
+                    document.getElementById("boss-area").appendChild(expEl); 
+                    explosionsList.push({ el: expEl, x: b.x, y: b.y, explodeTime: now, isTrueBomb: b.isTrueBomb }); playSound('explosion.wav');
+                }
+            }
+
+            for(let i = explosionsList.length - 1; i >= 0; i--) {
+                let exp = explosionsList[i]; let elapsed = now - exp.explodeTime; 
+                let maxRadius = exp.isTrueBomb ? 150 : 120; 
+                let currentRadius = (elapsed / 500) * maxRadius;
+                
+                exp.el.style.width = (currentRadius * 2) + "px"; exp.el.style.height = (currentRadius * 2) + "px";
+                if (Math.hypot(exp.x - heart.x, exp.y - heart.y) < currentRadius && now > invincibleTimer) { hp -= 10; invincibleTimer = now + 500; playSound('boss_hit.wav'); }
+                if (elapsed >= 500) { exp.el.remove(); explosionsList.splice(i, 1); }
+            }
+
+            let hpDisplay = document.getElementById("boss-hp"); hpDisplay.innerText = `HP: ${hp}`;
+            if (hp > 40) hpDisplay.style.color = "#4bff4b"; else hpDisplay.style.color = "#ff4b4b";
+            if (hp <= 0) endBossFight(false);
+        }
+
+        function endBossFight(isWin) {
+            clearInterval(bossLoopInterval); clearInterval(bulletSpawnInterval); clearInterval(bombSpawnInterval); 
+            if (truePhaseAttackInterval) clearInterval(truePhaseAttackInterval); stopMusic(); 
+            
+            bulletsList.forEach(b => b.el.remove()); bombsList.forEach(b => b.el.remove()); explosionsList.forEach(e => e.el.remove());
+            document.getElementById("boss-screen").style.display = "none"; touchKeysPressed = {}; 
+            document.getElementById("boss-bg-gradient").style.display = "none";
+
+            if (isWin) {
+                let authLvl = shop_items["authority"]["level"];
+                let multiplier = authLvl === 6 ? 3.0 : 1.0 + (authLvl * 0.25);
+                let reward = Math.floor(99 * multiplier); balance += reward; game_status = `Перемога у босфайті! +${reward}$`; playSound('boss_win.wav');
+            } else { game_status = "Ви програли босфайт! (0$)"; playSound('boss_lose.wav'); }
+            updateUI();
+        }
+
+        function setupVirtualControls() {
+            const btns = { "up": document.getElementById("btn-up"), "down": document.getElementById("btn-down"), "left": document.getElementById("btn-left"), "right": document.getElementById("btn-right") };
+            const startMove = (dir) => { if (document.getElementById("boss-screen").style.display === "flex") touchKeysPressed[dir] = true; };
+            const stopMove = (dir) => { touchKeysPressed[dir] = false; };
+            for (let dir in btns) {
+                btns[dir].addEventListener("touchstart", (e) => { e.preventDefault(); startMove(dir); }, {passive: false});
+                btns[dir].addEventListener("touchend", (e) => { e.preventDefault(); stopMove(dir); }, {passive: false});
+                btns[dir].addEventListener("mousedown", (e) => { e.preventDefault(); startMove(dir); });
+                btns[dir].addEventListener("mouseup", (e) => { e.preventDefault(); stopMove(dir); });
+                btns[dir].addEventListener("mouseleave", (e) => { e.preventDefault(); stopMove(dir); }); 
+            }
+        }
+        setupVirtualControls(); 
+
+        window.addEventListener("keydown", (e) => {
+            if (e.key === " " || e.key === "Spacebar") {
+                if (checkAnyAction()) return;
+                e.preventDefault(); 
+                if (!is_shop_open && !is_job_open && document.getElementById("boss-screen").style.display !== "flex") spinReels(); 
+            } else { keysPressed[e.key] = true; }
+        });
+        window.addEventListener("keyup", (e) => { keysPressed[e.key] = false; });
+        
+        // Первинна ініціалізація інтерфейсу
+        updateUI();
+    </script>
+</body>
+</html>
