@@ -6,9 +6,9 @@
     <title id="game-title">Казино Six-Seven 🎰</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; touch-action: none; }
-        body { background-color: #000; color: #fff; font-family: 'Arial', sans-serif; overflow: hidden; }
+        body { background-color: #000; color: #fff; font-family: 'Arial', sans-serif; overflow: hidden; width: 100vw; height: 100vh; }
         
-        #game-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #game-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         
         /* ГОЛОВНИЙ ЕКРАН */
         .header { text-align: center; margin-bottom: 20px; }
@@ -43,12 +43,12 @@
         /* ЕКРАН РОБОТИ */
         #job-screen { display: none; position: absolute; inset: 0; background: #192319; flex-direction: column; align-items: center; justify-content: center; z-index: 5; }
         .work-zone { width: 700px; height: 360px; background: #283228; border: 2px solid #80805a; border-radius: 10px; position: relative; overflow: hidden; cursor: crosshair; }
-        .poop { position: absolute; width: 40px; height: 40px; cursor: pointer; transform: translate(-50%, -50%); transition: transform 0.1s; }
+        .poop { position: absolute; width: 40px; height: 40px; cursor: pointer; transform: translate(-50%, -50%); }
         .poop img { width: 100%; height: 100%; object-fit: contain; }
         
         /* ЕКРАН МАГАЗИНУ */
         #shop-screen { display: none; position: absolute; inset: 0; background: #000; flex-direction: column; align-items: center; justify-content: center; z-index: 5; overflow-y: auto; padding: 20px 0; }
-        .shop-container { display: flex; gap: 40px; align-items: flex-start; max-width: 900px; width: 100%; padding: 0 20px; }
+        .shop-container { display: flex; gap: 40px; align-items: flex-start; max-width: 1000px; width: 100%; padding: 0 20px; }
         .shop-items-list { flex: 1; display: flex; flex-direction: column; gap: 10px; }
         .shop-item-card { background: #28282d; border: 1px solid #80805a; border-radius: 8px; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; min-height: 70px;}
         .cat-seller-zone { width: 270px; display: flex; flex-direction: column; align-items: center; position: sticky; top: 20px;}
@@ -58,29 +58,9 @@
         
         /* БОСФАЙТ */
         #boss-screen { display: none; position: absolute; inset: 0; background: #000; flex-direction: column; align-items: center; justify-content: center; z-index: 6; }
-        
-        #boss-bg-gradient { 
-            display: none;
-            position: absolute; 
-            left: 0;
-            width: 100vw;
-            height: 250vh; 
-            bottom: 0;
-            background: linear-gradient(to top, 
-                rgba(255, 0, 0, 1) 0%, 
-                rgba(255, 0, 0, 0.8) 25%, 
-                rgba(255, 0, 0, 0.5) 50%, 
-                rgba(255, 0, 0, 0.2) 75%, 
-                transparent 100%
-            );
-            transform: translateY(100%); 
-            pointer-events: none; 
-            z-index: 0; 
-        }
-        
+        #boss-bg-gradient { display: none; position: absolute; left: 0; width: 100vw; height: 250vh; bottom: 0; background: linear-gradient(to top, rgba(255,0,0,1) 0%, rgba(255,0,0,0.8) 25%, rgba(255,0,0,0.5) 50%, rgba(255,0,0,0.2) 75%, transparent 100%); transform: translateY(100%); pointer-events: none; z-index: 0; }
         .boss-portrait { width: 240px; height: 240px; margin-bottom: 15px; z-index: 1; position: relative; display: flex; align-items: center; justify-content: center; }
         .boss-portrait img, .boss-portrait video { width: 100%; height: 100%; object-fit: contain; }
-        
         .boss-box { width: 300px; height: 300px; border: 4px solid #fff; position: relative; background: #000; overflow: hidden; z-index: 1; }
         .player-heart { position: absolute; transform: translate(-50%, -50%); font-size: 30px; color: #ff0000; width: 40px; height: 40px; z-index: 2; display: flex; align-items: center; justify-content: center; }
         .boss-bullet, .boss-bomb { position: absolute; transform: translate(-50%, -50%); z-index: 1; }
@@ -89,35 +69,25 @@
         .boss-bullet img, .boss-bomb img { width: 100%; height: 100%; object-fit: contain; }
         .boss-bomb.blinking { animation: blink 0.2s infinite; }
         .explosion-ring { position: absolute; border: 3px solid #ff4b4b; background: rgba(255,75,75,0.2); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 1; }
-        
         #boss-speech-bubble { position: absolute; inset: 10px; display: none; justify-content: center; align-items: center; text-align: center; font-family: monospace; font-size: 18px; font-weight: bold; color: #fff; z-index: 5; background: rgba(0,0,0,0.85); padding: 15px; line-height: 1.4; }
         .epic-word { color: #ff3333; text-shadow: 0 0 8px #ff0000; font-family: 'Georgia', serif; font-style: italic; font-size: 20px; }
-
         .boss-ui { display: flex; width: 300px; justify-content: space-between; margin-top: 15px; font-size: 20px; font-weight: bold; align-items: center; z-index: 1; }
         .btn-escape { border-color: #ffaa00; color: #ffaa00; padding: 6px 16px; font-size: 14px; border-radius: 8px; }
-
         #rpg-choice-container { display: none; position: absolute; bottom: 80px; width: 300px; justify-content: space-between; z-index: 10; }
         .rpg-btn { width: 130px; padding: 10px; background: #000; border: 3px solid #ffaa00; color: #fff; font-family: monospace; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 4px; text-align: center; }
-        .rpg-btn:hover { background: #222; color: #ffaa00; }
-
-        #boss-controls { position: absolute; bottom: 30px; left: 30px; display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 10px; z-index: 10; display: none; }
-        .control-btn { width: 60px; height: 60px; background: rgba(255,255,255,0.1); border: 3px solid #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #fff; cursor: pointer; }
+        #boss-controls { position: absolute; bottom: 30px; right: 30px; display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 12px; z-index: 10; display: none; }
+        .control-btn { width: 75px; height: 75px; background: rgba(255,255,255,0.15); border: 3px solid #fff; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 34px; color: #fff; cursor: pointer; }
         #btn-up { grid-column: 2; grid-row: 1; }
         #btn-left { grid-column: 1; grid-row: 2; }
         #btn-down { grid-column: 2; grid-row: 2; }
         #btn-right { grid-column: 3; grid-row: 2; }
-
         #demo-thanks-text { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 4; justify-content: center; align-items: center; text-align: center; font-size: 22px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px #ffd700; padding: 20px; }
-        
+
+        /* ЕФЕКТИ СИСТЕМИ */
         #screamer-screen { display: none; position: absolute; inset: 0; background: #ff0000; z-index: 10; flex-direction: column; align-items: center; justify-content: center; }
         .screamer-box { width: 80vw; height: 70vh; animation: shake 0.1s infinite; }
         .screamer-box img { width: 100%; height: 100%; object-fit: contain; }
         .screamer-text { font-size: 50px; color: #ffd700; font-weight: bold; text-align: center; margin-top: 20px; }
-
-        .fullscreen-ending { display: none; position: absolute; inset: 0; background: #000; z-index: 100; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        .ending-story { font-size: 24px; max-width: 650px; line-height: 1.6; color: #fff; margin-bottom: 30px; font-weight: bold; }
-        .ending-img { width: 85vw; max-width: 500px; border: 4px solid #fff; border-radius: 10px; }
-
         #error-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
         .error-window { width: 340px; background: #f0f0f0; border: 1px solid #0054e3; box-shadow: 3px 3px 15px rgba(0,0,0,0.5); font-family: 'Tahoma', sans-serif; color: #000; }
         .error-titlebar { background: linear-gradient(to right, #0054e3, #267bef); padding: 5px 10px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: bold; font-size: 13px; }
@@ -126,19 +96,52 @@
         .error-msg { font-size: 13px; font-weight: normal; line-height: 1.4; }
         .error-buttons { background: #f0f0f0; padding: 10px; display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #d0d0d0; }
         .win-btn { padding: 5px 20px; background: #fff; border: 1px solid #707070; cursor: pointer; font-size: 12px; }
-        .win-btn:hover { background: #e0e0e0; border-color: #0054e3; }
-
         #loading-overlay { display: none; position: absolute; inset: 0; background: #111; z-index: 250; flex-direction: column; align-items: center; justify-content: center; }
         .loader-bar-container { width: 260px; height: 24px; border: 2px solid #fff; background: #000; padding: 2px; margin-top: 15px; }
-        .loader-fill { width: 0%; height: 100%; background: #00ff00; transition: width 0.1s linear; }
-
+        .loader-fill { width: 0%; height: 100%; background: #00ff00; }
         #cutscene-screen { display: none; position: absolute; inset: 0; background: #000; z-index: 300; justify-content: center; align-items: center; }
+        .fullscreen-ending { display: none; position: absolute; inset: 0; background: #000; z-index: 100; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .ending-story { font-size: 24px; max-width: 650px; line-height: 1.6; color: #fff; margin-bottom: 30px; font-weight: bold; }
+        .ending-img { width: 85vw; max-width: 500px; border: 4px solid #fff; border-radius: 10px; }
 
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes shake { 0%, 100% { transform: translate(0, 0) scale(1); } 20% { transform: translate(-10px, 5px) scale(1.1); } 40% { transform: translate(10px, -5px) scale(1.05); } 60% { transform: translate(-5px, -10px) scale(1.15); } 80% { transform: translate(5px, 10px) scale(0.95); } }
         @keyframes blink { 0%, 100% { filter: invert(0); } 50% { filter: invert(1) sepia(1) saturate(100) } }
 
-        @media screen and (max-width: 600px) {
+        /* =========================================================================
+           АДАПТИВНИЙ СТИЛЬ: ДЛЯ ПЛАНШЕТІВ ТА СУПЕР-ШИРОКИХ ПРИСТРОЇВ (LANDSCAPE)
+           ========================================================================= */
+        @media screen and (min-aspect-ratio: 13/9) and (min-width: 768px) {
+            #game-container { flex-direction: row; justify-content: space-evenly; align-items: center; gap: 40px; padding: 40px; }
+            
+            .header { order: 1; display: flex; flex-direction: column; align-items: flex-start; text-align: left; margin-bottom: 0; }
+            .title { font-size: 38px; margin-bottom: 15px; }
+            .balance-box { position: relative; top: auto; left: auto; margin-bottom: 25px; display: inline-block; font-size: 34px; }
+            .status-text { order: 3; text-align: left; max-width: 340px; font-size: 18px; margin-top: 15px; }
+            .btn-spin { order: 2; width: 340px; height: 70px; font-size: 24px; margin-bottom: 0; }
+
+            .slot-machine { margin-bottom: 0; transform: scale(1.05); }
+            .side-buttons { position: relative; bottom: auto; right: auto; flex-direction: row; gap: 15px; margin-top: 20px; z-index: 2; }
+            .btn-job, .btn-shop { width: 170px; padding: 14px 10px; font-size: 16px; }
+            
+            .effect-wrapper { position: absolute; bottom: 30px; left: 40px; }
+            .work-zone { width: 75vw; height: 55vh; }
+
+            .shop-container { max-width: 95vw; gap: 30px; }
+            .shop-items-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .shop-item-card { min-height: 85px; padding: 15px; }
+            .cat-seller-zone { width: 240px; }
+
+            #boss-screen { flex-direction: row; justify-content: center; gap: 60px; padding: 40px; }
+            .boss-portrait { margin-bottom: 0; width: 220px; height: 220px; }
+            .boss-box { width: 320px; height: 320px; }
+            .boss-ui { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); width: 600px; justify-content: space-between; font-size: 26px; }
+            #boss-controls { bottom: 40px; right: 40px; display: grid; }
+            #rpg-choice-container { bottom: 40px; left: 40px; width: 320px; }
+        }
+
+        /* Вертикальний мобільний стиль */
+        @media screen and (max-width: 767px) or (max-aspect-ratio: 13/9) {
             #game-container { justify-content: flex-start; padding-top: 75px; height: 100vh; overflow: hidden; }
             .title { font-size: 26px; }
             .balance-box { font-size: 18px; top: 15px; left: 15px; padding: 5px 12px; }
@@ -150,8 +153,6 @@
             .btn-job, .btn-shop { flex: 1; font-size: 14px; padding: 12px 5px; text-align: center; }
             .effect-wrapper { position: relative; bottom: auto; left: auto; width: 85vw; z-index: 3; }
             .effect-zone { width: 100%; height: 55px; padding: 5px 10px; }
-            .effect-title { font-size: 13px; }
-            .effect-desc { font-size: 11px; }
             .tooltip { bottom: 60px; left: 0; width: 85vw; }
             .work-zone { width: 90vw; height: 45vh; }
             .poop { width: 12vw; height: 12vw; }
@@ -163,9 +164,8 @@
             .boss-portrait { width: 100px; height: 100px; margin-bottom: 10px; }
             .boss-box { width: 80vw; height: 80vw; }
             .boss-ui { width: 80vw; }
-            #boss-controls { bottom: 15px; left: 15px; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(2, 50px); gap: 5px; }
+            #boss-controls { bottom: 15px; left: 15px; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(2, 50px); gap: 5px; display: none; }
             .control-btn { width: 50px; height: 50px; font-size: 22px; }
-            .ending-story { font-size: 16px; }
             #rpg-choice-container { bottom: 70px; width: 80vw; }
             .rpg-btn { width: 45%; font-size: 15px; }
         }
@@ -236,7 +236,7 @@
             </div>
         </div>
         <button class="btn" style="border-color: #ff4b4b; color: #ff4b4b; margin-top: 20px; width: 240px; max-width: 80vw;" onclick="closeShop()">Назад</button>
-    </div>
+        </div>
 
     <div id="boss-screen">
         <div id="boss-bg-gradient"></div>
@@ -278,7 +278,7 @@
             </div>
             <div class="error-body">
                 <div class="error-icon">⚠</div>
-                <div class="error-msg">Ця версія гри застаріла і потребує термінового оновлення безпеки.<br><br>Бажаєте завантажити оновлення зараз?</div>
+                <div class="error-msg">Ця версія... застаріла і потребує оновлення безпеки.<br><br>Бажаєте завантажити оновлення зараз?</div>
             </div>
             <div class="error-buttons">
                 <button class="win-btn" onclick="acceptUpdate()">Так</button>
@@ -588,9 +588,7 @@
             document.getElementById("screamer-banner").innerText = penalty > 0 ? `!!!LUIGI JUMPSCARE!!! (-${penalty}$ за тему)` : "!!!LUIGI JUMPSCARE!!!";
             document.getElementById("screamer-screen").style.display = "flex"; playSound('luigi.mp3');
             setTimeout(() => { document.getElementById("screamer-screen").style.display = "none"; game_status = "Натисніть SPACE або Кликніть, щоб крутити!"; updateUI(); }, 1250);
-        }
-
-        function triggerSystemError() { playSound('error.mp3'); document.getElementById("error-overlay").style.display = "flex"; }
+function triggerSystemError() { playSound('error.mp3'); document.getElementById("error-overlay").style.display = "flex"; }
         function closeErrorWindow() { document.getElementById("error-overlay").style.display = "none"; updateUI(); }
 
         function acceptUpdate() {
@@ -666,7 +664,7 @@
 
         function getCatSpeech(key) {
             if (is_null_mode) {
-                const null_quotes = { "authority": "ти дійсно думаєш що заслуговуєш на це?", "apple_juice": "тобі немає для кого це використати тут...", "talisman": "Удача сьогодні не на твоїй стороні", "light_discord": "Я не збираюсь облегшувати тобі життя", "pasta": "Забув замовити на сьогодні пармезан, тому ні." };
+                const null_quotes = { "authority": "ти дійсно думаєш що заслуговуєш на це?", "apple_juice": "тобі немає для кого це використати тут...", "talisman": "Удача сьогодні не на твоїй стороне", "light_discord": "Я не збираюсь облегшувати тобі життя", "pasta": "Забув замовити на сьогодні пармезан, тому ні." };
                 document.getElementById("cat-speech").innerText = null_quotes[key] || "Уходь."; return;
             }
             if (insufficient_funds_trigger) return;
@@ -686,21 +684,20 @@
             playSound('money.mp3'); renderShop(); getCatSpeech(key); updateUI(); 
         }
 
-        // --- БОСФАЙТ ---
+        // --- БОСФАЙТ СИСТЕМА ---
         let bossLoopInterval = null, bulletSpawnInterval = null, bombSpawnInterval = null;
         let heart = { x: 150, y: 150, speed: 4 }, hp = 100, invincibleTimer = 0, bossTimeRemaining = 30;
         let bulletsList = [], bombsList = [], explosionsList = [], keysPressed = {}, touchKeysPressed = {}; 
         let gradientDirection = 1, gradientPosition = 120;
         let isTrueBossPhase = false; 
 
-        // Таймінги та логіка другої фази
         let truePhaseStartTime = 0;
         let truePhaseAttackInterval = null;
 
         function startBossFight() {
             game_status = "БОСФАЙТ! Битва розпочалась!"; updateUI(); playMusic('fight.mp3');
             document.getElementById("boss-screen").style.display = "flex";
-            document.getElementById("boss-controls").style.display = isMobileDevice() ? "grid" : "none";
+            document.getElementById("boss-controls").style.display = "grid"; 
             document.getElementById("boss-escape-action").style.display = "block";
             document.getElementById("rpg-choice-container").style.display = "none";
             document.getElementById("boss-speech-bubble").style.display = "none";
@@ -723,7 +720,6 @@
             bombSpawnInterval = setInterval(spawnBossBomb, 3000);
             bossLoopInterval = setInterval(bossUpdate, 1000 / 60);
         }
-
         function triggerRpgChoicePhase() {
             stopMusic();
             clearInterval(bulletSpawnInterval); clearInterval(bombSpawnInterval);
@@ -805,9 +801,8 @@
             truePhaseAttackInterval = setInterval(() => {
                 if (document.getElementById("boss-screen").style.display !== "flex") { clearInterval(truePhaseAttackInterval); return; }
                 
-                let elapsedSeconds = (Date.now() - truePhaseStartTime) / 1000 + 20; // +20 секунд анімації
+                let elapsedSeconds = (Date.now() - truePhaseStartTime) / 1000 + 20; 
 
-                // Атака 1: 00:23 - 00:33 (Модифіковані швидкі бомби)
                 if (elapsedSeconds >= 23 && elapsedSeconds <= 33) {
                     if (Date.now() - lastBombSpawn >= 1000) { 
                         spawnTruePhaseBomb();
@@ -815,7 +810,6 @@
                     }
                 }
 
-                // Атака 2: 00:34 - 00:44 (Прицільні паттерни + або X з країв)
                 if (elapsedSeconds >= 34 && elapsedSeconds <= 44) {
                     if (Date.now() - lastPatternSpawn >= 1200) {
                         spawnTruePatternAttack();
@@ -823,7 +817,6 @@
                     }
                 }
 
-                // Кінець демо: 00:45+
                 if (elapsedSeconds >= 45) {
                     clearInterval(truePhaseAttackInterval);
                     bulletsList.forEach(b => b.el.remove()); bulletsList = [];
@@ -839,22 +832,19 @@
         function spawnTruePhaseBomb() {
             let el = document.createElement("div"); el.className = "boss-bomb"; el.innerHTML = `<img src="images/bomb.png">`;
             document.getElementById("boss-area").appendChild(el);
-            // Нова логіка: швидша бомба, більший радіус
             bombsList.push({ el, x: heart.x, y: heart.y, spawnTime: Date.now(), isTrueBomb: true });
         }
 
         function spawnTruePatternAttack() {
             let pattern = Math.random() < 0.5 ? 'plus' : 'cross';
-            let speed = 4.5; // Швидкі кулі
+            let speed = 4.5; 
 
             if (pattern === 'plus') {
-                // Зверху, знизу, зліва, справа летять прямо до поточного серця
                 bulletsList.push({ el: createBulletEl(), x: heart.x, y: -20, vx: 0, vy: speed });
                 bulletsList.push({ el: createBulletEl(), x: heart.x, y: 320, vx: 0, vy: -speed });
                 bulletsList.push({ el: createBulletEl(), x: -20, y: heart.y, vx: speed, vy: 0 });
                 bulletsList.push({ el: createBulletEl(), x: 320, y: heart.y, vx: -speed, vy: 0 });
             } else {
-                // По діагоналях 'X' спрямовані у точку серця
                 let offset = 150;
                 bulletsList.push({ el: createBulletEl(), x: heart.x - offset, y: heart.y - offset, vx: speed, vy: speed });
                 bulletsList.push({ el: createBulletEl(), x: heart.x + offset, y: heart.y - offset, vx: -speed, vy: speed });
@@ -873,10 +863,8 @@
             clearInterval(bossLoopInterval); clearInterval(bulletSpawnInterval); clearInterval(bombSpawnInterval); 
             if (truePhaseAttackInterval) clearInterval(truePhaseAttackInterval); stopMusic();
             bulletsList.forEach(b => b.el.remove()); bombsList.forEach(b => b.el.remove()); explosionsList.forEach(e => e.el.remove());
-            document.getElementById("boss-screen").style.display = "none"; document.getElementById("boss-controls").style.display = "none";
-            touchKeysPressed = {}; keysPressed = {}; game_status = "Ви успішно втекли з поля бою! (0$)"; updateUI();
+            document.getElementById("boss-screen").style.display = "none"; touchKeysPressed = {}; keysPressed = {}; game_status = "Ви успішно втекли з поля бою! (0$)"; updateUI();
         }
-
         function spawnBossBullet() {
             const sides = ["top", "bottom", "left", "right"]; let side = sides[Math.floor(Math.random() * sides.length)];
             let bx = 0, by = 0, vx = 0, vy = 0; let speedMod = 1.5;
@@ -915,7 +903,6 @@
             const hEl = document.getElementById("heart"); hEl.style.left = heart.x + "px"; hEl.style.top = heart.y + "px";
             let now = Date.now();
 
-            // Логіка оновлення об'єктів на арені
             for(let i = bulletsList.length - 1; i >= 0; i--) {
                 let b = bulletsList[i]; b.x += b.vx; b.y += b.vy; b.el.style.left = b.x + "px"; b.el.style.top = b.y + "px";
                 if (Math.hypot(b.x - heart.x, b.y - heart.y) < 16 && now > invincibleTimer) {
@@ -941,7 +928,7 @@
 
             for(let i = explosionsList.length - 1; i >= 0; i--) {
                 let exp = explosionsList[i]; let elapsed = now - exp.explodeTime; 
-                let maxRadius = exp.isTrueBomb ? 150 : 120; // На 25% більше радіус вибуху
+                let maxRadius = exp.isTrueBomb ? 150 : 120; 
                 let currentRadius = (elapsed / 500) * maxRadius;
                 
                 exp.el.style.width = (currentRadius * 2) + "px"; exp.el.style.height = (currentRadius * 2) + "px";
@@ -959,7 +946,7 @@
             if (truePhaseAttackInterval) clearInterval(truePhaseAttackInterval); stopMusic(); 
             
             bulletsList.forEach(b => b.el.remove()); bombsList.forEach(b => b.el.remove()); explosionsList.forEach(e => e.el.remove());
-            document.getElementById("boss-screen").style.display = "none"; document.getElementById("boss-controls").style.display = "none"; touchKeysPressed = {}; 
+            document.getElementById("boss-screen").style.display = "none"; touchKeysPressed = {}; 
             document.getElementById("boss-bg-gradient").style.display = "none";
 
             if (isWin) {
